@@ -1,0 +1,39 @@
+@startuml
+participant "User device" as u
+participant "Local ID resolver" as rslv
+participant "Local proximity monitor" as mon
+
+participant "Cloud services*" as srv
+
+group Location startup
+mon->srv: register\nwith location ID
+srv->srv: store origin IP\nmap to location
+end
+group Proximity monitoring
+mon->mon: monitor local WiFi
+mon->srv: report proximity events
+end
+
+group Join local network
+u->rslv: access resolver\nvia captive portal\ndrive-by
+rslv->rslv: find MAC
+rslv->u: report MAC,\nredirect to\nglobal service
+u->srv: register with MAC
+srv->srv: store origin IP\ncreate session
+srv->u: return session & group service URL
+end
+
+group Join group
+u->srv: join group
+srv->srv: find client MAC\nin proximity store,\nattach to group
+srv->u: return group id & file service URL
+end
+
+group File operations
+u->srv: get list of group files
+u->srv: upload a file
+u->srv: download a file
+end
+
+
+@enduml
