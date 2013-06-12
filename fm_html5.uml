@@ -6,8 +6,8 @@ participant "Local proximity monitor" as mon
 participant "Cloud services*" as srv
 
 group Location startup
-mon->srv: register\nwith location ID
-srv->srv: store origin IP\nmap to location
+mon->srv: register
+srv->srv: store monitor IP
 end
 group Proximity monitoring
 mon->mon: monitor local WiFi
@@ -19,14 +19,14 @@ u->rslv: access resolver\nvia captive portal\ndrive-by
 rslv->rslv: find MAC
 rslv->u: report MAC,\nredirect to\nglobal service
 u->srv: register with MAC
-srv->srv: store origin IP\ncreate session
-srv->u: return session & group service URL
+srv->srv: store client IP&MAC\ncreate session
+srv->u: return session
 end
 
 group Join group
 u->srv: join group
-srv->srv: find client MAC\nin proximity store,\nattach to group
-srv->u: return group id & file service URL
+srv->srv: match client IP\nto monitor IP,\ncheck if client\nin proximity,\nattach to group
+srv->u: return group id
 end
 
 group File operations

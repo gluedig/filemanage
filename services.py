@@ -52,12 +52,9 @@ def mon_register_route(mon_id):
 def mon_unregister_route(mon_id):
     return app.mon_manager.unregister(mon_id)
 
-@app.route('/monitor/event/<mon_id>/<op>/<mac>')
-def mon_event_route(mon_id, op, mac):
-    if not app.mon_manager.is_registered(mon_id):
-        return ('Monitor: '+mon_id+' not registered', 404)
-   
-    return "OK"
+@app.route('/monitor/event/<mon_id>/<event>/<mac>')
+def mon_event_route(mon_id, event, mac):
+    return app.mon_manager.client_event(mon_id, event, mac)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', threaded=True)
