@@ -40,11 +40,14 @@ if __name__ == '__main__':
     if not endpoint:
         sys.exit()
     
-    pool = ThreadPool()
+    
     
     register_url = str.format(register_url_tmp, service_url, monitor_id)
-    urllib2.urlopen(register_url)
+    result = urllib2.urlopen(register_url)
+    if result.getcode() != 200:
+        sys.exit()
     
+    pool = ThreadPool()
     zmq_ctx = zmq.Context()
     
     atexit.register(exit_func, zmq_ctx, pool)
@@ -58,7 +61,7 @@ if __name__ == '__main__':
         msg_json = json.loads(string)[0]
         event = msg_json['event_type']
         mac = msg_json['mac']
-        print str.format("Event: {0} MAC: {1}", event, mac)
+        #print str.format("Event: {0} MAC: {1}", event, mac)
         
         if event == 0 or event == 1:
             pool.apply_async(send_func, (event, mac))

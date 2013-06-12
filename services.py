@@ -3,8 +3,8 @@ Created on Jun 12, 2013
 
 @author: developer
 '''
-from mac_resolver import resolve
-
+from resolve import MacResolver
+from monitor_manager import MonitorManager
 
 from flask import Flask, request, redirect, session
 
@@ -12,7 +12,8 @@ app = Flask(__name__)
 app.debug = True
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
-app.mac_resolve = resolve.MacResolver()
+app.mac_resolve = MacResolver()
+app.mon_manager = MonitorManager()
 
 #mac finder i/f
 @app.route('/resolve')
@@ -27,13 +28,13 @@ def mac_route():
 
 #client i/f
 @app.route('/client/register/<mac>')
-def register_route(mac):
+def client_register_route(mac):
     ip = request.remote_addr
     session['mac'] = mac
     return "Registered IP: "+ip+" MAC: "+mac
 
 @app.route('/client/unregister')
-def unregister_route():
+def client_unregister_route():
     if 'mac' in session:
         mac = session.pop('mac', None)
         return "Unregistered MAC: "+mac
@@ -44,14 +45,18 @@ def unregister_route():
 #wifi monitor i/f
 @app.route('/monitor/register/<mon_id>')
 def mon_register_route(mon_id):
-    return "OK"
+    ip = request.remote_addr
+    return app.mon_manager.register(ip, mon_id)
 
 @app.route('/monitor/unregister/<mon_id>')
 def mon_unregister_route(mon_id):
-    return "OK"
+    return app.mon_manager.unregister(mon_id)
 
 @app.route('/monitor/event/<mon_id>/<op>/<mac>')
-def event_route(mon_id, op, mac):
+def mon_event_route(mon_id, op, mac):
+    if not app.mon_manager.is_registered(mon_id):
+        return ('Monitor: '+mon_id+' not registered', 404)
+   
     return "OK"
 
 if __name__ == '__main__':
