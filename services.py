@@ -85,7 +85,7 @@ def mon_find_route(mac):
         return ("Not found", 404)
 
 @app.route('/monitor/dump')
-def mon_dump():
+def mon_dump_route():
     return app.mon_manager.dump()
 
 if __name__ == '__main__':

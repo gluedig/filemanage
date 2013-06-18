@@ -21,7 +21,7 @@ class GroupManager(object):
         self.mon_mgr = mon_mgr
         self.groups = {}
         
-        
+    #web methods
     def join(self, ip, session):
         if 'mac' not in session:
             return ('No MAC in session', 404)

@@ -8,7 +8,8 @@ Created on Jun 17, 2013
 class ClientManager:
     def __init__(self):
         self.clients = set()
-        
+    
+    #web methods
     def register(self, mac, session):
         if mac in self.clients:
             return (str.format('Client {0} already seen', mac), 404)
@@ -36,6 +37,7 @@ class ClientManager:
             ret += clt + "\n"
         return ret
     
+    #interface methods
     def is_registered(self, mac):
         if mac in self.clients:
             return True

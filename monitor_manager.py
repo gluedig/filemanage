@@ -4,23 +4,20 @@ Created on Jun 12, 2013
 @author: developer
 '''
 
-class monitor:
-    def __init__(self):
-        self.id = None
-        self.ip = None
-        self.clients = set()
-        
-class client:
-    def __init__(self, mac):
-        self.mac = mac
-
 class MonitorManager:
+    class monitor:
+        def __init__(self):
+            self.id = None
+            self.ip = None
+            self.clients = set()
+    
     def __init__(self):
         self.mons_by_id = {}
         self.mons_by_ip = {}
-        
+    
+    #web methods 
     def register(self, ip, mon_id):
-        new_mon = monitor()
+        new_mon = MonitorManager.monitor()
         new_mon.ip = ip
         new_mon.id = mon_id
         if self.is_registered(mon_id):
@@ -44,26 +41,6 @@ class MonitorManager:
                 mons.remove(tmon) 
         
         return "OK"
-    
-    def is_registered(self, mon_id):
-        return mon_id in self.mons_by_id
-    
-    def find_monitor_by_ip(self, ip):
-        if ip in self.mons_by_ip:
-            return self.mons_by_ip[ip]
-        else:
-            return None
-        
-    def find_client(self, ip, mac):
-        monitors = self.find_monitor_by_ip(ip)
-        if not monitors:
-            return None
-        
-        for monitor in monitors:
-            if mac in monitor.clients:
-                return monitor.id
-        
-        return None
     
     def dump(self):
         ret = ''
@@ -91,4 +68,28 @@ class MonitorManager:
             return ("Unknown event: "+event, 404)
         
         return "OK"
+    
+    
+    #interface methods
+    def is_registered(self, mon_id):
+        return mon_id in self.mons_by_id
+    
+    def find_monitor_by_ip(self, ip):
+        if ip in self.mons_by_ip:
+            return self.mons_by_ip[ip]
+        else:
+            return None
+        
+    def find_client(self, ip, mac):
+        monitors = self.find_monitor_by_ip(ip)
+        if not monitors:
+            return None
+        
+        for monitor in monitors:
+            if mac in monitor.clients:
+                return monitor.id
+        
+        return None
+    
+    
     
