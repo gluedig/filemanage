@@ -3,14 +3,17 @@ Created on Jun 12, 2013
 
 @author: developer
 '''
+from flask import Flask, request, redirect
+app = Flask(__name__)
 
 from subprocess import Popen, PIPE
 import re
 
+SERVICES_URL="http://lb-bun-52:5000/client/register/"
+
 class MacResolver:
     def __init__(self):
         self.arp_cache = {}
-
     
     def resolve(self, ip):
         mac = None
@@ -35,3 +38,19 @@ class MacResolver:
                 self.arp_cache[ip] = mac
         
         return mac
+
+#mac finder i/f
+@app.route('/resolve')
+def mac_route():
+    ip = request.remote_addr
+    mac =  app.mac_resolve.resolve(ip)
+    
+    if mac:
+        return redirect(SERVICES_URL+mac)
+    else:
+        return ('Not found', 404)
+
+if __name__ == '__main__':
+    app.mac_resolve = MacResolver()    
+    app.debug = True
+    app.run(host='0.0.0.0', threaded=True, port=5002)
