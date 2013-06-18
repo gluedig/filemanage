@@ -75,7 +75,7 @@ def mon_find_route(mac):
     ip = request.remote_addr
     monitor = app.mon_manager.find_client(ip, mac)
     if monitor:
-        return monitor
+        return monitor+'\n'
     else:
         return ("Not found", 404)
 

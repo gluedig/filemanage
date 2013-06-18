@@ -47,7 +47,7 @@ class FileBox(object):
             return ret
         
         grp_id = session['group']
-        ret = str.format("Files for group: {0}\n", grp_id)
+        ret = str.format("Files for group: {0} ", grp_id)
         if grp_id in self.files:
             for f in self.files[grp_id]:
                 ret += f

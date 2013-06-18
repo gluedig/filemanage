@@ -12,12 +12,12 @@ class ClientManager:
     #web methods
     def register(self, mac, session):
         if mac in self.clients:
-            return (str.format('Client {0} already seen', mac), 404)
+            return (str.format('Client {0} already seen\n', mac), 404)
         session.clear()
         session['mac'] = mac
         
         self.clients.add(mac)
-        return str.format("Registered client MAC: {0}", mac)
+        return str.format("Registered client MAC: {0}\n", mac)
     
     def unregister(self, session):
         if 'mac' in session:
@@ -25,16 +25,16 @@ class ClientManager:
             session.clear()
             if mac in self.clients:
                 self.clients.remove(mac)
-                return "Unregistered client MAC: "+mac
+                return str.format("Unregistered client MAC: {0}\n", mac)
             else:
-                return (str.format("Client MAC: {0} found in session but not in db", mac))
+                return (str.format("Client MAC: {0} found in session but not in db\n", mac))
         else:
-            return ('No MAC in session', 404)
+            return ('No MAC in session\n', 404)
     
     def dump(self):
-        ret = 'Registered clients:\n'
+        ret = 'Registered clients: '
         for clt in self.clients:
-            ret += clt + "\n"
+            ret += clt + " "
         return ret
     
     #interface methods

@@ -24,15 +24,15 @@ class GroupManager(object):
     #web methods
     def join(self, ip, session):
         if 'mac' not in session:
-            return ('No MAC in session', 404)
+            return ('No MAC in session\n', 404)
         mac = session['mac']
         
         if not self.clt_mgr.is_registered(mac):
-            return (str.format('Client MAC: {0} not registered', mac), 404)
+            return (str.format('Client MAC: {0} not registered\n', mac), 404)
         
         mon_id = self.mon_mgr.find_client(ip, mac)
         if not mon_id:
-            return (str.format('Cannot find client MAC: {0} through any monitor', mac), 404)
+            return (str.format('Cannot find client MAC: {0} through any monitor\n', mac), 404)
         
         grp_id = "group-"+mon_id
         if grp_id not in self.groups:
@@ -41,15 +41,15 @@ class GroupManager(object):
         self.groups[grp_id].clients.add(mac)
         
         session['group'] = grp_id
-        return str.format("Registered client MAC: {0} in group:{1}", mac, grp_id)
+        return str.format("Registered client MAC: {0} in group:{1}\n", mac, grp_id)
     
     def leave(self, session):
         if 'group' not in session:
-            return ("Client does not belong to any group", 404)
+            return ("Client does not belong to any group\n", 404)
         
         grp_id = session['group']
         if grp_id not in self.groups:
-            return (str.format("Group: {0} not longer valid", grp_id), 404)
+            return (str.format("Group: {0} not longer valid\n", grp_id), 404)
         
         self.groups[grp_id].clients.remove(session['mac'])
         session.pop('group')
@@ -57,11 +57,11 @@ class GroupManager(object):
     
     def members(self, session):
         if 'group' not in session:
-            return ("Client does not belong to any group", 404)
+            return ("Client does not belong to any group\n", 404)
         
         grp_id = session['group']
         if grp_id not in self.groups:
-            return (str.format("Group: {0} not longer valid", grp_id), 404)
+            return (str.format("Group: {0} not longer valid\n", grp_id), 404)
         
         group = self.groups[grp_id]
         
