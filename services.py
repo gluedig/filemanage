@@ -7,6 +7,7 @@ Created on Jun 12, 2013
 from monitor_manager import MonitorManager
 from client_manager import ClientManager
 from group_manager import GroupManager
+from dropbox import FileBox
 
 from flask import Flask, request, redirect, session
 
@@ -16,7 +17,7 @@ app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 app.mon_manager = MonitorManager()
 app.clt_manager = ClientManager()
 app.grp_manager = GroupManager(app.clt_manager, app.mon_manager)
-
+app.dropbox = FileBox(app.grp_manager, app.clt_manager)
 
 #===============================================================================
 # client i/f
@@ -82,6 +83,23 @@ def mon_find_route(mac):
 def mon_dump_route():
     return app.mon_manager.dump()
 
+#===============================================================================
+# filebox i/f
+#===============================================================================
+@app.route('/filebox/list')
+def filebox_list_route():
+    return app.dropbox.list_files(session)
+
+@app.route('/filebox/upload', methods=['GET', 'POST'])
+def filebox_upload_route():
+    return app.dropbox.upload(session, request)
+
+@app.route('/filebox/download/<file>')
+def filebox_download_route(file):
+    return app.dropbox.download(session, file)
+
 if __name__ == '__main__':
     app.debug = True
+
     app.run(host='0.0.0.0', threaded=True)
+    

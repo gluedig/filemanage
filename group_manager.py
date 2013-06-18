@@ -74,5 +74,26 @@ class GroupManager(object):
         
         return ret
     
+    #interface methods
+    def group_exists(self, grp_id):
+        if grp_id in self.groups:
+            return True
+        else:
+            return False
+        
+    def group_members(self, grp_id):
+        if not self.group_exists(grp_id):
+            return set()
+        else:
+            return self.groups[grp_id].clients
+
+    def is_member(self, grp_id, mac):
+        if not self.group_exists(grp_id):
+            return False
+        if not self.clt_mgr.is_registered(mac):
+            return False
+        
+        return mac in self.group_members(grp_id)
+            
     
         

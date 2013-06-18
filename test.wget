@@ -1,0 +1,9 @@
+http://lb-bun-52:5000/monitor/register/dupa
+http://lb-bun-52:5000/monitor/event/dupa/0/0000
+http://lb-bun-52:5000/client/register/0000
+http://lb-bun-52:5000/group/join
+http://lb-bun-52:5000/client/dump
+http://lb-bun-52:5000/monitor/dump
+http://lb-bun-52:5000/monitor/find/0000
+http://lb-bun-52:5000/group/dump
+
