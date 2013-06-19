@@ -16,12 +16,13 @@ class FileBox(object):
     '''
 
 
-    def __init__(self, grp_mgr, clt_mgr):
+    def __init__(self, app):
         '''
         Constructor
         '''
-        self.grp_mgr = grp_mgr
-        self.clt_mgr = clt_mgr
+        self.app = app
+        self.grp_mgr = app.grp_manager
+        self.clt_mgr = app.clt_manager
         self.files = {}
     
     def _check_group(self, session):

@@ -11,7 +11,8 @@ class MonitorManager:
             self.ip = None
             self.clients = set()
     
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         self.mons_by_id = {}
         self.mons_by_ip = {}
     

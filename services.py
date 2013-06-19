@@ -10,14 +10,22 @@ from group_manager import GroupManager
 from dropbox import FileBox
 
 from flask import Flask, request, redirect, session
+from blinker import Namespace
 
 app = Flask(__name__)
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 
-app.mon_manager = MonitorManager()
-app.clt_manager = ClientManager()
-app.grp_manager = GroupManager(app.clt_manager, app.mon_manager)
-app.dropbox = FileBox(app.grp_manager, app.clt_manager)
+app.signals_namespace = Namespace()
+app.signals = {}
+app.signals['client-register'] = app.signals_namespace.signal('client-register')
+app.signals['client-unregister'] = app.signals_namespace.signal('client-unregister')
+
+app.mon_manager = MonitorManager(app)
+app.clt_manager = ClientManager(app)
+app.grp_manager = GroupManager(app)
+app.dropbox = FileBox(app)
+
+
 
 #===============================================================================
 # client i/f
@@ -98,8 +106,8 @@ def filebox_upload_route():
 def filebox_download_route(file):
     return app.dropbox.download(session, file)
 
+   
 if __name__ == '__main__':
     app.debug = True
-
     app.run(host='0.0.0.0', threaded=True)
     

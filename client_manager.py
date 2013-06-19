@@ -4,9 +4,11 @@ Created on Jun 17, 2013
 @author: developer
 '''
 
+from flask import current_app
 
 class ClientManager:
-    def __init__(self):
+    def __init__(self, app):
+        self.app = app
         self.clients = set()
     
     #web methods
@@ -17,6 +19,8 @@ class ClientManager:
         session['mac'] = mac
         
         self.clients.add(mac)
+
+        self.app.signals['client-register'].send(self.app, mac=mac)
         return str.format("Registered client MAC: {0}\n", mac)
     
     def unregister(self, session):
@@ -25,6 +29,8 @@ class ClientManager:
             session.clear()
             if mac in self.clients:
                 self.clients.remove(mac)
+
+                self.app.signals['client-unregister'].send(self.app, mac=mac)
                 return str.format("Unregistered client MAC: {0}\n", mac)
             else:
                 return (str.format("Client MAC: {0} found in session but not in db\n", mac))

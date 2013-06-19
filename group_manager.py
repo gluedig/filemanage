@@ -12,14 +12,23 @@ class GroupManager(object):
         def __init__(self, grp_id):
             self.id = grp_id
             self.clients = set()
+    
+    
+    def _clt_unregister_signal(self, sender, mac, **args):
+        for group in self.groups.values():
+            if mac in group.clients:
+                group.clients.remove(mac)
+                self.app.logger.debug(str.format("Removed client: {0} form group: {1}", mac, group.id))
 
-    def __init__(self, clt_mgr, mon_mgr):
+    def __init__(self, app):
         '''
         Constructor
         '''
-        self.clt_mgr = clt_mgr
-        self.mon_mgr = mon_mgr
+        self.app = app
+        self.clt_mgr = app.clt_manager
+        self.mon_mgr = app.mon_manager
         self.groups = {}
+        self.app.signals['client-unregister'].connect(self._clt_unregister_signal, self.app)
         
     #web methods
     def join(self, ip, session):
