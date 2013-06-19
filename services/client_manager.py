@@ -3,8 +3,8 @@ Created on Jun 17, 2013
 
 @author: developer
 '''
-
-from flask import current_app
+from services import app
+from flask import session
 
 class ClientManager:
     def __init__(self, app):
@@ -49,3 +49,22 @@ class ClientManager:
             return True
         else:
             return False
+        
+        
+app.services['client_manager'] = ClientManager(app)
+this_service = app.services['client_manager']
+
+#===============================================================================
+# client i/f
+#===============================================================================
+@app.route('/client/register/<mac>')
+def client_register_route(mac):
+    return this_service.register(mac, session)
+
+@app.route('/client/unregister')
+def client_unregister_route():
+    return this_service.unregister(session)
+
+@app.route('/client/dump')
+def client_dump_route():
+    return this_service.dump()

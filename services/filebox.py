@@ -3,13 +3,11 @@ Created on Jun 18, 2013
 
 @author: developer
 '''
-
+from services import app
 from werkzeug import secure_filename
-from flask import send_from_directory
+from flask import send_from_directory, session, request
 import os.path
 
-config = {}
-config['UPLOAD_FOLDER'] = '/var/tmp/uploads'
 class FileBox(object):
     '''
     classdocs
@@ -21,8 +19,8 @@ class FileBox(object):
         Constructor
         '''
         self.app = app
-        self.grp_mgr = app.grp_manager
-        self.clt_mgr = app.clt_manager
+        self.grp_mgr = app.services['group_manager']
+        self.clt_mgr = app.services['client_manager']
         self.files = {}
     
     def _check_group(self, session):
@@ -63,10 +61,10 @@ class FileBox(object):
         mac = session['mac']
         grp_id = session['group']
         if request.method == 'POST':
-            file = request.files['file']
-            if file:
-                filename = secure_filename(file.filename)
-                file.save(os.path.join(config['UPLOAD_FOLDER'], filename))
+            req_file = request.files['file']
+            if req_file:
+                filename = secure_filename(req_file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 
                 if grp_id not in self.files:
                     self.files[grp_id] = set()
@@ -103,6 +101,23 @@ class FileBox(object):
         if not self.grp_mgr.is_member(found, mac):
             return (str.format("Client {0} does not belong to group {1}", mac, found), 404)
         
-        return send_from_directory(config['UPLOAD_FOLDER'], filename)
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
+
+app.services['filebox'] = FileBox(app)
+this_service = app.services['filebox']
         
-        
+#===============================================================================
+# filebox i/f
+#===============================================================================
+@app.route('/filebox/list')
+def filebox_list_route():
+    return this_service.list_files(session)
+
+@app.route('/filebox/upload', methods=['GET', 'POST'])
+def filebox_upload_route():
+    return this_service.upload(session, request)
+
+@app.route('/filebox/download/<req_file>')
+def filebox_download_route(req_file):
+    return this_service.download(session, req_file)        

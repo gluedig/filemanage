@@ -3,6 +3,8 @@ Created on Jun 12, 2013
 
 @author: developer
 '''
+from services import app
+from flask import request
 
 class MonitorManager:
     class monitor:
@@ -91,6 +93,35 @@ class MonitorManager:
                 return monitor.id
         
         return None
-    
-    
-    
+
+
+app.services['monitor_manager'] = MonitorManager(app)
+this_service = app.services['monitor_manager']
+#===============================================================================
+# wifi monitor i/f
+#===============================================================================
+@app.route('/monitor/register/<mon_id>')
+def mon_register_route(mon_id):
+    ip = request.remote_addr
+    return this_service.register(ip, mon_id)
+
+@app.route('/monitor/unregister/<mon_id>')
+def mon_unregister_route(mon_id):
+    return this_service.unregister(mon_id)
+
+@app.route('/monitor/event/<mon_id>/<event>/<mac>')
+def mon_event_route(mon_id, event, mac):
+    return this_service.client_event(mon_id, event, mac)
+
+@app.route('/monitor/find/<mac>')
+def mon_find_route(mac):
+    ip = request.remote_addr
+    monitor = this_service.find_client(ip, mac)
+    if monitor:
+        return monitor+'\n'
+    else:
+        return ("Not found", 404)    
+
+@app.route('/monitor/dump')
+def mon_dump_route():
+    return this_service.dump()

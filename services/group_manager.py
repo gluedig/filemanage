@@ -3,6 +3,8 @@ Created on Jun 18, 2013
 
 @author: developer
 '''
+from services import app
+from flask import session, request
 
 class GroupManager(object):
     '''
@@ -25,8 +27,8 @@ class GroupManager(object):
         Constructor
         '''
         self.app = app
-        self.clt_mgr = app.clt_manager
-        self.mon_mgr = app.mon_manager
+        self.clt_mgr = app.services['client_manager']
+        self.mon_mgr = app.services['monitor_manager']
         self.groups = {}
         self.app.signals['client-unregister'].connect(self._clt_unregister_signal, self.app)
         
@@ -104,5 +106,28 @@ class GroupManager(object):
         
         return mac in self.group_members(grp_id)
             
-    
+app.services['group_manager'] = GroupManager(app)
+this_service = app.services['group_manager']
+
+#===============================================================================
+# group i/f
+#===============================================================================
+@app.route('/group/join')
+def group_join_route():
+    ip = request.remote_addr
+    return this_service.join(ip, session)
+
+@app.route('/group/leave')
+def group_leave_route():
+    return this_service.leave(session)
+
+@app.route('/group/members')
+def group_members_route():
+    return this_service.members(session)
+
+@app.route('/group/dump')
+def group_dump_route():
+    return this_service.dump()
+
+
         
