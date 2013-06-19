@@ -65,6 +65,13 @@ def client_register_route(mac):
 def client_unregister_route():
     return this_service.unregister(session)
 
+@app.route('/client/mac')
+def client_mac_route():
+    if 'mac' not in session:
+            return ('No MAC in session\n', 404)
+
+    return session['mac']
+
 @app.route('/client/dump')
 def client_dump_route():
     return this_service.dump()

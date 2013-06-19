@@ -64,12 +64,15 @@ class FileBox(object):
             req_file = request.files['file']
             if req_file:
                 filename = secure_filename(req_file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                req_file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 
                 if grp_id not in self.files:
                     self.files[grp_id] = set()
                 self.files[grp_id].add(filename)
                 
+                self.app.signals['file-upload'].send(self.app,
+                                                     mac=mac, group_id=grp_id, filename=filename)
+
                 return str.format("Client: {0} uploaded file: {1} for group: {2}",
                                   mac, filename, grp_id)
         return '''
