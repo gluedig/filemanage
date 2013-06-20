@@ -4,7 +4,7 @@ Created on Jun 19, 2013
 @author: gluedig
 '''
 
-from services import app
+from fm_services import app
 from flask import session, Response
 from collections import Iterable
 import Queue
