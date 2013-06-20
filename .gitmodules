@@ -1,0 +1,3 @@
+[submodule "fm_services/static"]
+	path = fm_services/static
+	url = git@github.com:ralphdas/filebrowser-nodejs.git
