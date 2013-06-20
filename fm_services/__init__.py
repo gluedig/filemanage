@@ -15,6 +15,7 @@ app.signals = {}
 app.signals['client-register'] = app.signals_namespace.signal('client-register')
 app.signals['client-unregister'] = app.signals_namespace.signal('client-unregister')
 
+
 app.services = {}
 
 import monitor_manager

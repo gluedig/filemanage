@@ -39,6 +39,8 @@ class MacResolver:
         
         return mac
 
+app.mac_resolve = MacResolver()
+
 #mac finder i/f
 @app.route('/resolve')
 def mac_route():
@@ -51,6 +53,5 @@ def mac_route():
         return ('Not found', 404)
 
 if __name__ == '__main__':
-    app.mac_resolve = MacResolver()    
     app.debug = True
     app.run(host='0.0.0.0', threaded=True, port=5002)

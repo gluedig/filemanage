@@ -3,7 +3,7 @@ Created on Jun 18, 2013
 
 @author: developer
 '''
-from services import app
+from fm_services import app
 from werkzeug import secure_filename
 from flask import send_from_directory, session, request
 import os.path
