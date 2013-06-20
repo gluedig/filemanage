@@ -12,5 +12,6 @@ setup(
     packages=['fm_services'],
     include_package_data=True,
     zip_safe=False,
-    install_requires=['Flask', 'blinker']
+    install_requires=['Flask', 'blinker'],
+    package_data={'fm_services': ['static/*']}
 )
