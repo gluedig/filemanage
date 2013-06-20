@@ -3,10 +3,10 @@ Created on Jun 12, 2013
 
 @author: developer
 '''
-from flask import Flask
+from flask import Flask, render_template
 from blinker import Namespace
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
 app.config['UPLOAD_FOLDER'] = '/var/tmp/uploads'
 
@@ -27,3 +27,11 @@ import group_manager
 import filebox
 import update
 
+
+@app.route('/')
+def root():
+    return app.send_static_file('index.html')
+
+@app.route('/test/update')
+def test_update_route():
+    return render_template('update_test.html')
