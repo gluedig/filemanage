@@ -14,6 +14,9 @@ app.signals_namespace = Namespace()
 app.signals = {}
 app.signals['client-register'] = app.signals_namespace.signal('client-register')
 app.signals['client-unregister'] = app.signals_namespace.signal('client-unregister')
+app.signals['group-member-add'] = app.signals_namespace.signal('group-member-add')
+app.signals['group-member-remove'] = app.signals_namespace.signal('group-member-remove')
+app.signals['file-upload'] = app.signals_namespace.signal('file-upload')
 
 
 app.services = {}
@@ -22,3 +25,5 @@ import monitor_manager
 import client_manager
 import group_manager
 import filebox
+import update
+

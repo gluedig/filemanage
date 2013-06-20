@@ -52,6 +52,7 @@ class GroupManager(object):
         self.groups[grp_id].clients.add(mac)
         
         session['group'] = grp_id
+        self.app.signals['group-member-add'].send(self.app, group_id=grp_id, mac=mac)
         return str.format("Registered client MAC: {0} in group:{1}\n", mac, grp_id)
     
     def leave(self, session):
@@ -62,8 +63,10 @@ class GroupManager(object):
         if grp_id not in self.groups:
             return (str.format("Group: {0} not longer valid\n", grp_id), 404)
         
-        self.groups[grp_id].clients.remove(session['mac'])
+        mac = session['mac']
+        self.groups[grp_id].clients.remove(mac)
         session.pop('group')
+        self.app.signals['group-member-remove'].send(self.app, group_id=grp_id, mac=mac)
         return "OK"
     
     def members(self, session):
