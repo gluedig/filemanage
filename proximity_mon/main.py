@@ -10,12 +10,12 @@ import urllib2
 import atexit
 from multiprocessing.pool import ThreadPool
 
-service_url = "http://localhost:5000"
+service_url = "http://gluedig.dnsd.info:443"
 register_url_tmp = "{0}/monitor/register/{1}" 
 unregister_url_tmp = "{0}/monitor/unregister/{1}"
 event_url_tmp = "{0}/monitor/event/{1}/{2}/{3}"
 
-monitor_id = 'dupa'
+monitor_id = 'test1'
 
 def exit_func(zmq_ctx, pool):
     pool.close()
