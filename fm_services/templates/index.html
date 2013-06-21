@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+		<link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+        <script src="register.js"></script>
+        <script src="main.js"></script>
+    </head>
+    <script type="text/javascript">
+    var client_mac = '{{client_mac}}';
+    
+    $(document).ready(function() {
+	   	registerClass.registerUser(client_mac);
+   
+	});
+    </script>
+    <body>
+<div class="container-fluid">
+	<div class="row-fluid">
+    	<div class="span12">
+    		Group
+    		<div id="group_name">joining..</div>
+    	</div>
+    </div>
+    <div class="row-fluid">
+    	<div class="span12">
+    		Group members
+    		<table class="table" id="members_table">
+    		<tr><td>None</td><tr>
+    		</table>
+    	</div>
+    </div>
+    <div class="row-fluid">
+    	<div class="span12">
+    		Files
+    		<table class="table" id="files_table">
+    		<tr><td>None</td><tr>
+    		</table>
+    	</div>
+    </div>
+    <div class="row-fluid">
+    	<div class="span12">
+    		<a target="_blank" href="/filebox/upload" title="Upload file">Upload new file</a>
+    	</div>
+    </div>
+	
+</div>
+    </body>
+</html>
