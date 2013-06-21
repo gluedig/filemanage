@@ -17,7 +17,8 @@ app.signals['client-unregister'] = app.signals_namespace.signal('client-unregist
 app.signals['group-member-add'] = app.signals_namespace.signal('group-member-add')
 app.signals['group-member-remove'] = app.signals_namespace.signal('group-member-remove')
 app.signals['file-upload'] = app.signals_namespace.signal('file-upload')
-
+app.signals['proximity-entered'] = app.signals_namespace.signal('proximity-entered')
+app.signals['proximity-left'] = app.signals_namespace.signal('proximity-left')
 
 app.services = {}
 

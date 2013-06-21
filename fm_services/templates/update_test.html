@@ -24,6 +24,12 @@ function sse_message_file(e) {
 	$('#messages').append(item);
 };
 
+function sse_message_prox(e) {
+	var data = jQuery.parseJSON(e.data);
+	var item = '<li>msgtype: '+data.msgtype+' mon_id: '+data.mon_id+' mac: '+data.client+'</li>';
+	$('#messages').append(item);
+};
+
 $(document).ready(function() {
     
     var source_group = new EventSource('/updates/group');
@@ -33,13 +39,16 @@ $(document).ready(function() {
 	var source_group = new EventSource('/updates/files');
     source_group.onmessage = function(e){sse_message_file(e)};
 	source_group.onerror = function(s){alert(s)};
+
+	var source_group = new EventSource('/updates/proximity');
+    source_group.onmessage = function(e){sse_message_prox(e)};
+	source_group.onerror = function(s){alert(s)};
 });
 
 </script>
     </head>
     <body>
     <ol id="messages">
-    	<li>Loading...</li>
     </ol>
     </body>
 </html>
