@@ -76,3 +76,41 @@ def files_updates():
     group = session['group']
     return Response(FileboxUpdates(app, group), headers=[('cache-control','no-cache'), ('connection', 'keep-alive')],
         content_type='text/event-stream')
+
+
+class ProximityUpdates(Iterable):
+    def __init__(self, app, mac):
+        self.app = app
+        self.mac = mac
+        self.n = 0
+        self.q = Queue.Queue()
+        self.app.signals['proximity-entered'].connect(self._entered_signal, self.app)
+        self.app.signals['proximity-left'].connect(self._left_signal, self.app)
+
+    def _entered_signal(self, sender, mon_id, mac, **args):
+        self.app.logger.debug(str.format("client: {0} entered proximity of monitor: {1}",
+                                     mac, mon_id))
+        self.q.put(('proximity-enter', mac, mon_id))
+
+    def _left_signal(self, sender, mon_id, mac, **args):
+        self.app.logger.debug(str.format("client: {0} left proximity of monitor: {1}",
+                                     mac, mon_id))
+        self.q.put(('proximity-leave', mac, mon_id))
+
+    def __iter__(self):
+        while True:
+            (op, mac, mon_id) = self.q.get()
+            if mac == self.mac:
+                data = {'msgtype': op, 'mon_id': mon_id, 'client': mac}
+                self.n += 1
+                yield unicode("event: message\nid: {0}\ndata: {1}\n\n".format(self.n, json.dumps(data)))
+
+
+@app.route('/updates/proximity', methods=["POST","GET"])
+def proximity_updates():
+    if 'mac' not in session:
+            return ("Client MAC not registered\n", 404)
+
+    mac = session['mac']
+    return Response(ProximityUpdates(app, mac), headers=[('cache-control','no-cache'), ('connection', 'keep-alive')],
+        content_type='text/event-stream')

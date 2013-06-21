@@ -61,11 +61,13 @@ class MonitorManager:
         if event == '0':
             if not mac in monitor.clients:
                 monitor.clients.add(mac)
+                self.app.signals['proximity-entered'].send(self.app, mon_id=mon_id, mac=mac)
                 return str.format("Monitor {0} registered new client {1}\n", mon_id, mac)
         #client remove
         elif event == '1': 
             if mac in monitor.clients:
                 monitor.clients.remove(mac)
+                self.app.signals['proximity-left'].send(self.app, mon_id=mon_id, mac=mac)
                 return str.format("Monitor {0} unregistered client {1}\n", mon_id, mac)
         else:
             return (str.format("Unknown event: {0}\n", event), 404)
