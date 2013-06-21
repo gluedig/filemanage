@@ -7,6 +7,7 @@ from fm_services import app
 from werkzeug import secure_filename
 from flask import send_from_directory, session, request
 import os.path
+from flask.templating import render_template
 
 class FileBox(object):
     '''
@@ -46,10 +47,9 @@ class FileBox(object):
             return ret
         
         grp_id = session['group']
-        ret = str.format("Files for group: {0} ", grp_id)
+        ret = ""
         if grp_id in self.files:
-            for f in self.files[grp_id]:
-                ret += f
+            ret += "\n".join(self.files[grp_id])
         
         return ret
     
@@ -75,15 +75,7 @@ class FileBox(object):
 
                 return str.format("Client: {0} uploaded file: {1} for group: {2}",
                                   mac, filename, grp_id)
-        return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file>
-         <input type=submit value=Upload>
-    </form>
-    '''
+        return render_template('upload.html')
                 
     def download(self, session, req_file):
         ret = self._check_group(session)

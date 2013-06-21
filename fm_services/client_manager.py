@@ -13,8 +13,8 @@ class ClientManager:
     
     #web methods
     def register(self, mac, session):
-        if mac in self.clients:
-            return (str.format('Client {0} already seen\n', mac), 404)
+        #if mac in self.clients:
+        #    return (str.format('Client {0} already seen\n', mac), 404)
         session.clear()
         session['mac'] = mac
         

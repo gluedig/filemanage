@@ -30,7 +30,7 @@ import update
 
 @app.route('/')
 def root():
-    return app.send_static_file('index.html')
+    return render_template('index.html', client_mac='0000')
 
 @app.route('/test/update')
 def test_update_route():

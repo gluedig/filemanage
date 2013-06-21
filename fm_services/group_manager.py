@@ -53,7 +53,7 @@ class GroupManager(object):
         
         session['group'] = grp_id
         self.app.signals['group-member-add'].send(self.app, group_id=grp_id, mac=mac)
-        return str.format("Registered client MAC: {0} in group:{1}\n", mac, grp_id)
+        return str.format("Registered client MAC: {0} in group: {1}\n", mac, grp_id)
     
     def leave(self, session):
         if 'group' not in session:
