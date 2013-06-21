@@ -13,5 +13,5 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['Flask', 'blinker'],
-    package_data={'fm_services': ['static/*']}
+    package_data={'fm_services': ['static/*', 'templates/*']}
 )
