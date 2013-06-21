@@ -9,7 +9,7 @@ app = Flask(__name__)
 from subprocess import Popen, PIPE
 import re
 
-SERVICES_URL="http://lb-bun-52:5000/client/register/"
+SERVICES_URL="http://gluedig.dnsd.info:443/?mac="
 
 class MacResolver:
     def __init__(self):
@@ -17,9 +17,6 @@ class MacResolver:
     
     def resolve(self, ip):
         mac = None
-        #if ip == "127.0.0.1":
-        return "5c:26:0a:5d:2a:45"
-        
         
         if ip in self.arp_cache:
             mac =  self.arp_cache[ip]
