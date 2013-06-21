@@ -61,7 +61,7 @@ if __name__ == '__main__':
         msg_json = json.loads(string)[0]
         event = msg_json['event_type']
         mac = msg_json['mac']
-        #print str.format("Event: {0} MAC: {1}", event, mac)
+        print str.format("Event: {0} MAC: {1}", event, mac)
         
         if event == 0 or event == 1:
             pool.apply_async(send_func, (event, mac))

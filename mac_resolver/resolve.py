@@ -39,7 +39,7 @@ class MacResolver:
 app.mac_resolve = MacResolver()
 
 #mac finder i/f
-@app.route('/resolve')
+@app.route('/')
 def mac_route():
     ip = request.remote_addr
     mac =  app.mac_resolve.resolve(ip)
