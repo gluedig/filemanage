@@ -26,8 +26,8 @@ import monitor_manager
 import client_manager
 import group_manager
 import filebox
-import update
-
+#import update
+import events_forwarder
 
 @app.route('/')
 def root():
