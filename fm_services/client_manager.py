@@ -9,7 +9,7 @@ from flask import session
 class ClientManager:
     def __init__(self, app):
         self.app = app
-        self.clients = set()
+        self.db = app.db['client']
     
     #web methods
     def register(self, mac, session):
@@ -17,19 +17,17 @@ class ClientManager:
         #    return (str.format('Client {0} already seen\n', mac), 404)
         session.clear()
         session['mac'] = mac
-        
-        self.clients.add(mac)
-
-        self.app.signals['client-register'].send(self.app, mac=mac)
-        return str.format("Registered client MAC: {0}\n", mac)
+        if self.db.register(mac):
+            self.app.signals['client-register'].send(self.app, mac=mac)
+            return str.format("Registered client MAC: {0}\n", mac)
+        else:
+            return ('Client registration failed\n', 404)
     
     def unregister(self, session):
         if 'mac' in session:
             mac = session.pop('mac')
             session.clear()
-            if mac in self.clients:
-                self.clients.remove(mac)
-
+            if self.db.unregister(mac):
                 self.app.signals['client-unregister'].send(self.app, mac=mac)
                 return str.format("Unregistered client MAC: {0}\n", mac)
             else:
@@ -38,17 +36,11 @@ class ClientManager:
             return ('No MAC in session\n', 404)
     
     def dump(self):
-        ret = 'Registered clients: '
-        for clt in self.clients:
-            ret += clt + " "
-        return ret
+        return self.db.dump()
     
     #interface methods
     def is_registered(self, mac):
-        if mac in self.clients:
-            return True
-        else:
-            return False
+        return self.db.is_registered(mac)
         
         
 app.services['client_manager'] = ClientManager(app)

@@ -20,6 +20,9 @@ app.signals['proximity-entered'] = app.signals_namespace.signal('proximity-enter
 app.signals['proximity-left'] = app.signals_namespace.signal('proximity-left')
 
 app.services = {}
+app.db = {}
+
+import db.memory.client
 
 import monitor_manager
 import client_manager
