@@ -7,5 +7,4 @@ Created on Jun 19, 2013
 from fm_services import app
 
 if __name__ == '__main__':
-    app.debug = True
     app.run(host='0.0.0.0', threaded=True)

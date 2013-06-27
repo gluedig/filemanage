@@ -7,8 +7,7 @@ from flask import Flask, render_template, request, session
 from blinker import Namespace
 
 app = Flask(__name__, static_url_path='')
-app.secret_key = 'A0Zr98j/3yX R~XHH!jmN]LWX/,?RT'
-app.config['UPLOAD_FOLDER'] = '/var/tmp/uploads'
+app.config.from_object('fm_services.default_settings')
 
 app.signals_namespace = Namespace()
 app.signals = {}
