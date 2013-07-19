@@ -5,6 +5,7 @@ Created on Jun 12, 2013
 '''
 from fm_services import app
 from flask import request
+import json
 
 class MonitorManager:
     class monitor:
@@ -49,29 +50,55 @@ class MonitorManager:
         ret = ''
         for mon in self.mons_by_id.values():
             ret += str.format("Monitor ID: {0} IP: {1} Known clients: {2}\n", mon.id, mon.ip, mon.clients)
-            
         return ret
-        
-    def client_event(self, mon_id, event, mac):
+
+    def _proximity_enter(self, monitor,  mac, rssi):
+        monitor.clients.add(mac)
+        self.app.signals['proximity-entered'].send(self.app, mon_id=monitor.id, mac=mac, rssi=rssi)
+
+    def _proximity_leave(self, monitor, mac, rssi):
+        monitor.clients.remove(mac)
+        self.app.signals['proximity-left'].send(self.app, mon_id=monitor.id, mac=mac, rssi=rssi)
+
+    def _proximity_change(self, monitor, mac, rssi):
+        self.app.signals['proximity-change'].send(self.app, mon_id=monitor.id, mac=mac, rssi=rssi)
+
+    def client_event(self, mon_id, request):
         if not self.is_registered(mon_id):
             return ('Monitor: '+mon_id+' not registered\n', 404)
-        
+
         monitor = self.mons_by_id[mon_id]
+        msg_json = json.loads(request.data)[0]
+
         #client add
-        if event == '0':
+        mac = msg_json['mac']
+        event_type = msg_json['event_type']
+        rssi = msg_json['rssi']
+        if event_type == 0:
             if not mac in monitor.clients:
-                monitor.clients.add(mac)
-                self.app.signals['proximity-entered'].send(self.app, mon_id=mon_id, mac=mac)
+                self._proximity_enter(monitor, mac, rssi)
                 return str.format("Monitor {0} registered new client {1}\n", mon_id, mac)
         #client remove
-        elif event == '1': 
+        elif event_type == 1:
             if mac in monitor.clients:
-                monitor.clients.remove(mac)
-                self.app.signals['proximity-left'].send(self.app, mon_id=mon_id, mac=mac)
+                self._proximity_leave(monitor, mac, rssi)
                 return str.format("Monitor {0} unregistered client {1}\n", mon_id, mac)
+        #change
+        elif event_type == 2:
+            if mac in monitor.clients:
+                if rssi != msg_json['prev_rssi']:
+                    self.app.logger.info(str.format("MAC {0} prev rssi {1} new rssi {2}", mac, msg_json['prev_rssi'], rssi ))
+                    self._proximity_change(monitor, mac, rssi)
+                    return str.format("Monitor {0} client {1} RSSI changed\n", mon_id, mac)
+            else:
+                self._proximity_enter(monitor, mac, rssi)
+                return str.format("Monitor {0} registered new client {1}\n", mon_id, mac)
         else:
-            return (str.format("Unknown event: {0}\n", event), 404)
-        
+            error = str.format("Unknown event: {0}\n", msg_json['event_type'])
+            self.app.logger.error(error)
+            self.app.logger.debug(msg_json)
+            return (error, 404)
+
         return "OK\n"
     
     
@@ -111,9 +138,9 @@ def mon_register_route(mon_id):
 def mon_unregister_route(mon_id):
     return this_service.unregister(mon_id)
 
-@app.route('/monitor/event/<mon_id>/<event>/<mac>')
-def mon_event_route(mon_id, event, mac):
-    return this_service.client_event(mon_id, event, mac)
+@app.route('/monitor/event/<mon_id>', methods=["POST"])
+def mon_event_route(mon_id):
+    return this_service.client_event(mon_id, request)
 
 @app.route('/monitor/find/<mac>')
 def mon_find_route(mac):

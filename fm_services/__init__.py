@@ -18,6 +18,7 @@ app.signals['group-member-remove'] = app.signals_namespace.signal('group-member-
 app.signals['file-upload'] = app.signals_namespace.signal('file-upload')
 app.signals['proximity-entered'] = app.signals_namespace.signal('proximity-entered')
 app.signals['proximity-left'] = app.signals_namespace.signal('proximity-left')
+app.signals['proximity-change'] = app.signals_namespace.signal('proximity-change')
 
 app.services = {}
 app.db = {}

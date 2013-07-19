@@ -10,10 +10,10 @@ import urllib2
 import atexit
 from multiprocessing.pool import ThreadPool
 
-service_url = "http://gluedig.dnsd.info:443"
+service_url = "http://localhost:5000"
 register_url_tmp = "{0}/monitor/register/{1}" 
 unregister_url_tmp = "{0}/monitor/unregister/{1}"
-event_url_tmp = "{0}/monitor/event/{1}/{2}/{3}"
+event_url_tmp = "{0}/monitor/event/{1}"
 
 monitor_id = 'test1'
 
@@ -26,11 +26,10 @@ def exit_func(zmq_ctx, pool):
     unregister_url = str.format(unregister_url_tmp, service_url, monitor_id)
     urllib2.urlopen(unregister_url)
 
-def send_func(event, mac):
-    url = str.format(event_url_tmp, service_url, monitor_id, event, mac)
-    print url
+def send_func(msg_json):
+    url = str.format(event_url_tmp, service_url, monitor_id)
     try:
-        urllib2.urlopen(url)
+        urllib2.urlopen(url, msg_json)
     except:
         pass
     
@@ -57,12 +56,15 @@ if __name__ == '__main__':
     zmq_socket.connect(endpoint)
     
     while True:
-        string = zmq_socket.recv_unicode()
-        msg_json = json.loads(string)[0]
+        msg = zmq_socket.recv_unicode()
+        msg_json = json.loads(msg)[0]
         event = msg_json['event_type']
         mac = msg_json['mac']
-        print str.format("Event: {0} MAC: {1}", event, mac)
+        rssi = msg_json['rssi']
+        if event == 2:
+            prev_rssi = msg_json['prev_rssi']
+            print str.format("Event: {0} MAC: {1} RSSI: {2} {3} SSIDs: {4}", event, mac, rssi, prev_rssi, len(msg_json['probed_ssids']))
+        else:
+            print str.format("Event: {0} MAC: {1} RSSI: {2}", event, mac, rssi)
         
-        if event == 0 or event == 1:
-            pool.apply_async(send_func, (event, mac))
-            
+        pool.apply_async(send_func, (msg,))

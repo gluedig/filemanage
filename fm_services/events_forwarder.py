@@ -23,7 +23,8 @@ class EventUpdates():
         self.app.signals['file-upload'].connect(self._file_add_signal, self.app)
         self.app.signals['proximity-entered'].connect(self._entered_signal, self.app)
         self.app.signals['proximity-left'].connect(self._left_signal, self.app)
-        
+        self.app.signals['proximity-change'].connect(self._change_signal, self.app)
+
     def _grp_add_signal(self, sender, group_id, mac, **args):
         self.app.logger.debug(str.format("Added client: {0} to group: {1}", mac, group_id))
         self._send('add-member', group_id=group_id, mac=mac)
@@ -37,16 +38,21 @@ class EventUpdates():
                                      mac, group_id, filename))
         self._send('file-upload', mac=mac, group_id=group_id, filename=filename)
     
-    def _entered_signal(self, sender, mon_id, mac, **args):
+    def _entered_signal(self, sender, mon_id, mac, rssi, **args):
         self.app.logger.debug(str.format("client: {0} entered proximity of monitor: {1}",
                                      mac, mon_id))
-        self._send('proximity-enter', mac=mac, mon_id=mon_id)
+        self._send('proximity-enter', mac=mac, mon_id=mon_id, rssi=rssi)
 
-    def _left_signal(self, sender, mon_id, mac, **args):
+    def _left_signal(self, sender, mon_id, mac, rssi, **args):
         self.app.logger.debug(str.format("client: {0} left proximity of monitor: {1}",
                                      mac, mon_id))
-        self._send('proximity-leave', mac=mac, mon_id=mon_id)
-    
+        self._send('proximity-leave', mac=mac, mon_id=mon_id, rssi=rssi)
+
+    def _change_signal(self, sender, mon_id, mac, rssi, **args):
+        self.app.logger.debug(str.format("client: {0} monitor: {1} RSSI: {2}",
+                                     mac, mon_id, rssi))
+        self._send('proximity-change', mac=mac, mon_id=mon_id, rssi=rssi)
+
     def _send(self, op, **kwargs):
         data = {'msgtype': op, 'n': self.n}
         data.update(**kwargs)
