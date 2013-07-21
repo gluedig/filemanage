@@ -68,7 +68,12 @@ class MonitorManager:
             return ('Monitor: '+mon_id+' not registered\n', 404)
 
         monitor = self.mons_by_id[mon_id]
-        msg_json = json.loads(request.data)[0]
+        #self.app.logger.debug(request.get_data(as_text=True))
+        try:
+            msg_json = json.loads(request.data)[0]
+        except (ValueError):
+            self.app.logger.error("Cannot decode message: "+request.data)
+            return ("Cannot decode message", 500)
 
         #client add
         mac = msg_json['mac']
@@ -99,8 +104,7 @@ class MonitorManager:
             self.app.logger.debug(msg_json)
             return (error, 404)
 
-        return "OK\n"
-    
+        return 'OK'
     
     #interface methods
     def is_registered(self, mon_id):
