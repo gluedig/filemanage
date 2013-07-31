@@ -33,7 +33,7 @@ function login() {
 		find_monitor();
 	})
 	.error(function(jqxhr, status, error) {
-		$('#login').text('Login failed, pleas create an account')
+		$('#login').text('Login failed, please create an account')
 	});
 };
 
@@ -41,10 +41,12 @@ function find_monitor() {
 	$.ajax({
 		url: "/monitor/find/{{client_mac}}",
 		context: document.body,
-		dataType: 'json'
+		dataType: 'text'
 	})
 	.success(function(data, status, jqxhr) {
 		console.log(data)
+		var monitor = data;
+		$(this).append('<h2>Found you through monitor: <a href="http://localhost:8081/test/monitor/'+monitor+'">'+monitor+'</a></h2>');
 	})
 	.error(function(jqxhr, status, error) {
 		$(this).append('<h2>Cannot find you through any monitor</h2>');

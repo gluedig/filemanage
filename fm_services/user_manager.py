@@ -4,7 +4,7 @@ Created on Jul 31, 2013
 @author: developer
 '''
 from fm_services import app
-from flask import session, request
+from flask import session, request, make_response
 import random
 import json
 import md5
@@ -112,9 +112,23 @@ class UserManager:
     def get_user(self, user_id):
         user = self.db.find_by_id(user_id)
         if user:
-            return (True, user.json())
+            resp = make_response(user.json(), 200)
+            resp.mimetype = 'application/json'
+            return resp
         else:
-            return (False, str.format("{0}", self.db.users.values()))
+            return ("User not found", 404)
+    
+    def find_by_device(self, mac, jsonp_clbk):
+        user = self.db.find_by_device(mac)
+        if user:
+            if not jsonp_clbk:
+                resp = make_response(user.json(), 200)
+            else:
+                resp = make_response(jsonp_clbk+'('+user.json()+')', 200)
+            resp.mimetype = 'application/json'
+            return resp
+        else:
+            return ("User not found", 404)
             
 
 app.db['users'] = UserDb()
@@ -127,15 +141,9 @@ this_service = app.services['user_manager']
 @app.route('/user/<user_id>', methods=["PUT","GET"])
 def user_get(user_id):
     if request.method == "GET":
-        (resp, data) = this_service.get_user(user_id)
-        if resp:
-            return (data, 200)
-        else:
-            return (data, 404)
-    
-    
+        return this_service.get_user(user_id)
+
     return ('Not yet', 501)
-        
 
 @app.route('/user/login', methods=["POST","GET"])
 def user_login():
@@ -171,4 +179,16 @@ def user_create():
             return (data, 200)
         else:
             return (data, 400)
+
+@app.route('/user/find', methods=["GET"])
+def user_find():
+    if 'id' in request.args:
+        mac = request.args['id']
+        callback = None
+        if 'callback' in request.args:
+            callback = request.args['callback']
+        return this_service.find_by_device(mac, callback)
+    else:
+        return ('id missing', 400)
+        
     

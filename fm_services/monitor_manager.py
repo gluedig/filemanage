@@ -119,7 +119,7 @@ class MonitorManager:
     def find_client(self, ip, mac):
         monitors = self.find_monitor_by_ip(ip)
         if not monitors:
-            return None
+            monitors=self.mons_by_id.values()
         
         for monitor in monitors:
             if mac in monitor.clients:
