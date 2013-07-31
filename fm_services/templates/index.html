@@ -1,1 +1,62 @@
-Client MAC {{client_mac}}
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+<!-- 
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
+-->
+</head>
+<body>
+<h2>Client: {{client_mac}}</h2>
+<h2 id="login">Logging in..</h2>
+
+<script>
+function login() {
+	$.ajax({
+		url: "/user/login?id={{client_mac}}",
+		context: document.body,
+		dataType: 'json'
+	})
+	.success(function(data, status, jqxhr) {
+		$('#login').text("Login done");
+		resp = jqxhr.responseJSON[0];
+		console.log(resp)
+			
+		var email = resp.email;
+			
+		$(this).append('<h2>Welcome '+email+'</h2>');
+		if (resp.image != "") {
+			$(this).append('<img src='+resp.image+'/>');
+		}
+		find_monitor();
+	})
+	.error(function(jqxhr, status, error) {
+		$('#login').text('Login failed, pleas create an account')
+	});
+};
+
+function find_monitor() {
+	$.ajax({
+		url: "/monitor/find/{{client_mac}}",
+		context: document.body,
+		dataType: 'json'
+	})
+	.success(function(data, status, jqxhr) {
+		console.log(data)
+	})
+	.error(function(jqxhr, status, error) {
+		$(this).append('<h2>Cannot find you through any monitor</h2>');
+	});
+};
+
+$(document).ready(
+	function(){
+		login();	
+	}
+); 
+</script>
+
+</body>
+</html>
