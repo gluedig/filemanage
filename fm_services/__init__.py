@@ -31,6 +31,7 @@ import group_manager
 import filebox
 #import update
 import events_forwarder
+import user_manager
 
 @app.route('/')
 def root():
