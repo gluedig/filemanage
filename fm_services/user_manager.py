@@ -73,9 +73,11 @@ class UserManager:
             user = self.db.find_by_device(mac)
             if user:
                 session['user_id'] = user.user_id
-                return (True, user.json())
+                resp = make_response(user.json(), 200)
+                resp.mimetype = 'application/json'
+                return resp
             else:
-                return (False, "Associated user not found")
+                return ("Associated user not found", 404)
     
     def create_user_random(self, session, mac):
         if self.db.find_by_device(mac):
@@ -84,9 +86,11 @@ class UserManager:
         new_user = self.db.add("", "", mac)
         if new_user:
             new_user.email = str.format("User_{0}@sens.us", new_user.user_id)
-            return (True, new_user.json())
+            resp = make_response(new_user.json(), 200)
+            resp.mimetype = 'application/json'
+            return resp
         else:
-            return (False, "User creation failed")
+            return ("User creation failed", 400)
         
     def create_user(self, session, request):
         if 'email' not in request.form or 'mac' not in request.form:
@@ -105,9 +109,11 @@ class UserManager:
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
         new_user = self.db.add(email, img_url, mac)
         if new_user:
-            return (True, new_user.json())
+            resp = make_response(new_user.json(), 200)
+            resp.mimetype = 'application/json'
+            return resp
         else:
-            return (False, "User creation failed")
+            return ("User creation failed", 400)
 
     def get_user(self, user_id):
         user = self.db.find_by_id(user_id)
@@ -125,8 +131,8 @@ class UserManager:
                 resp = make_response(user.json(), 200)
             else:
                 resp = make_response(jsonp_clbk+'('+user.json()+')', 200)
-            resp.mimetype = 'application/json'
-            return resp
+                resp.mimetype = 'application/json'
+                return resp
         else:
             return ("User not found", 404)
             
@@ -150,11 +156,7 @@ def user_login():
     if request.method == "GET":
         if 'id' in request.args:
             mac = request.args['id']
-            (resp, data) = this_service.login_device(session, mac)
-            if resp:
-                return (data, 200)
-            else:
-                return (data, 400)
+            return this_service.login_device(session, mac)
         else:
             return ('id missing', 400)
         
@@ -165,20 +167,12 @@ def user_create():
     if request.method == "GET":
         if 'id' in request.args:
             mac = request.args['id']
-            (resp, data) =  this_service.create_user_random(session, mac)
-            if resp:
-                return (data, 200)
-            else:
-                return (data, 400)
+            return this_service.create_user_random(session, mac)
         else:
             return ('id missing', 400)
         
     elif request.method == "POST":
-        (resp, data) =  this_service.create_user(session, request)
-        if resp:
-            return (data, 200)
-        else:
-            return (data, 400)
+        return this_service.create_user(session, request)
 
 @app.route('/user/find', methods=["GET"])
 def user_find():

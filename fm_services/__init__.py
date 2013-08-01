@@ -44,7 +44,7 @@ def root():
 
     if not mac:
         return ('Client MAC address not known', 404)
-    return render_template('index.html', client_mac=mac)
+    return render_template('index.html', client_mac=mac, sockjs_url = app.config['SOCKJS_URL'])
 
 @app.route('/test/update')
 def test_update_route():

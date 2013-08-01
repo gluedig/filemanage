@@ -46,7 +46,7 @@ function find_monitor() {
 	.success(function(data, status, jqxhr) {
 		console.log(data)
 		var monitor = data;
-		$(this).append('<h2>Found you through monitor: <a href="http://localhost:8081/test/monitor/'+monitor+'">'+monitor+'</a></h2>');
+		$(this).append('<h2>Found you through monitor: <a href="{{sockjs_url}}'+monitor+'">'+monitor+'</a></h2>');
 	})
 	.error(function(jqxhr, status, error) {
 		$(this).append('<h2>Cannot find you through any monitor</h2>');
