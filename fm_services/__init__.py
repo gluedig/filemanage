@@ -29,7 +29,6 @@ import monitor_manager
 import client_manager
 import group_manager
 import filebox
-#import update
 import events_forwarder
 import user_manager
 
@@ -45,7 +44,3 @@ def root():
     if not mac:
         return ('Client MAC address not known', 404)
     return render_template('index.html', client_mac=mac, sockjs_url = app.config['SOCKJS_URL'])
-
-@app.route('/test/update')
-def test_update_route():
-    return render_template('update_test.html')
