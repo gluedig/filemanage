@@ -4,7 +4,7 @@ Created on Jul 31, 2013
 @author: developer
 '''
 from fm_services import app
-from flask import session, request, make_response
+from flask import session, request, make_response, render_template
 import random
 import json
 import md5
@@ -184,5 +184,17 @@ def user_find():
         return this_service.find_by_device(mac, callback)
     else:
         return ('id missing', 400)
-        
+
+@app.route('/user/create', methods=["GET"])
+def user_create_form():
+    mac = None
+    if 'mac' in session:
+        mac = session['mac']
+
+    if not mac and request.args and 'mac' in request.args:
+        mac = request.args['mac']
+
+    if not mac:
+        return ('Client MAC address not known', 404)
     
+    return render_template('create_user.html', client_mac=mac)

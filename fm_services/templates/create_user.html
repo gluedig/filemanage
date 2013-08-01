@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+<script>
+$(document).ready(
+	function(){
+		$('#create_user').submit(function(obj) {
+			var dataString = 'email='+ $('#email').val() + '&mac={{client_mac}}';  
+			$.ajax({  
+  				type: "POST",  
+  				url: "/user",  
+  				data: dataString,
+  				success: function(data, status, jqxhr) {
+  					resp = jqxhr.responseJSON[0];
+
+    				$("#banner").text("User id: "+resp.id+" created, redirecting to login..");
+    				$("#create_user").hide();
+    				setTimeout(function(){window.open("/", "_self")}, 1000)
+  				}  
+			});  
+			return false;
+		});
+	}
+); 
+</script>
+</head>
+<body>
+<h2>Client: {{client_mac}}</h2>
+
+<h2 id="banner">Create new user</h2>
+<form id="create_user">
+Email: <input id="email" type="text" name="email">
+<input type="submit" value="Create">
+</form>
+
+</body>
+</html>
