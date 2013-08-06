@@ -10,7 +10,7 @@ $(document).ready(
 			var dataString = 'email='+ $('#email').val() + '&id={{client_mac}}';
 			$.ajax({  
   				type: "POST",  
-  				url: "/user",  
+  				url: "/user/create",  
   				data: dataString,
   				success: function(data, status, jqxhr) {
   					resp = jqxhr.responseJSON[0];

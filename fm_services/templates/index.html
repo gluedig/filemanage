@@ -15,27 +15,45 @@
 <script>
 function login() {
 	$.ajax({
-		url: "/user/login?id={{client_mac}}",
+		url: "/user/login",
 		context: document.body,
 		dataType: 'json'
 	})
 	.success(function(data, status, jqxhr) {
-		$('#login').text("Login done");
-		resp = jqxhr.responseJSON[0];
-		console.log(resp)
+		if (jqxhr.responseJSON.length) {
 			
-		var email = resp.email;
-			
-		$(this).append('<h2>Welcome '+email+'</h2>');
-		if (resp.image != "") {
-			$(this).append('<img src='+resp.image+'/>');
+		
+			resp = jqxhr.responseJSON[0];
+			console.log(resp)
+		
+			$('#login').text("Login done");
+			get_user(resp);			
+			find_monitor();
+		} else {
+			$('#login').text('Login failed ');
+			$('#login').append('<a href="/user/create_form">please create an account</a>');
 		}
-		find_monitor();
-	})
-	.error(function(jqxhr, status, error) {
-		$('#login').text('Login failed ');
-		$('#login').append('<a href="/user/create">please create an account</a>');
 	});
+};
+
+function get_user(user_id) {
+	$.ajax({
+		url: "/user/"+user_id,
+		context: document.body,
+		dataType: 'json'
+	})
+	.success(function(data, status, jqxhr) {
+			resp = jqxhr.responseJSON[0];
+			console.log(resp)
+		
+			var email = resp.email;
+			
+			$(this).append('<h2>Welcome '+email+'</h2>');
+			if (resp.image != "") {
+				$(this).append('<img src='+resp.image+'/>');
+			}
+	});
+	
 };
 
 function find_monitor() {
@@ -54,7 +72,7 @@ function find_monitor() {
 		if ( $("#not_found").length == 0) {
 			$(this).append('<h2 id="not_found">Cannot find you through any monitor, will try again.</h2>');
 		}
-		setTimeout(function(){find_monitor()}, 5000);
+		setTimeout(function(){find_monitor()}, 10000);
 	});
 };
 
