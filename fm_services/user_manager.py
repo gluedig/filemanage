@@ -44,11 +44,11 @@ class UserManager:
             return ("User creation failed", 400)
         
     def create_user(self, session, request):
-        if 'email' not in request.form or 'mac' not in request.form:
+        if 'email' not in request.form or 'id' not in request.form:
             return ("Not enough form params", 400)
         
         email = request.form['email']
-        mac = request.form['mac']
+        mac = request.form['id']
         email_hash = md5.md5(email.strip().lower()).hexdigest()
         
         if email == '' or mac == '':

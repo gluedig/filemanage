@@ -71,8 +71,7 @@ class userDb(fm_services.db.user.userDb):
         
         self.users[new_id] = new_user
         self.by_device[device] = new_user
-        app.logger.debug(str.format("{0}", self.users))
-        
+
         return new_user
     
     def login(self, user_id):
