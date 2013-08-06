@@ -92,15 +92,15 @@ def xsite_enabled(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         resp = f(*args, **kwargs)
-        app.logger.debug(resp)
         if isinstance(resp, Response):
+            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT'
             resp.headers['Access-Control-Allow-Origin'] = '*'
-            app.logger.debug(resp.headers)
         return resp
     return decorated_function
 
 
 @app.route('/user/<user_id>', methods=["PUT","GET"])
+@xsite_enabled
 def user_get(user_id):
     if request.method == "GET":
         return this_service.get_user(user_id)
@@ -108,6 +108,7 @@ def user_get(user_id):
     return ('Not yet', 501)
 
 @app.route('/user/login', methods=["POST","GET"])
+@xsite_enabled
 def user_login():
     if request.method == "GET":
         if 'id' in request.args:
@@ -119,6 +120,7 @@ def user_login():
     return ('Not yet', 501)
 
 @app.route('/user', methods=["POST","GET"])
+@xsite_enabled
 def user_create():
     if request.method == "GET":
         if 'id' in request.args:
@@ -140,6 +142,7 @@ def user_find():
         return ('id missing', 400)
 
 @app.route('/user/create', methods=["GET"])
+@xsite_enabled
 def user_create_form():
     mac = None
     if 'mac' in session:
