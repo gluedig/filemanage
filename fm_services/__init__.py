@@ -24,6 +24,7 @@ app.services = {}
 app.db = {}
 
 import db.memory.client
+import db.memory.user
 
 import monitor_manager
 import client_manager

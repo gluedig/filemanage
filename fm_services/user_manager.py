@@ -4,62 +4,9 @@ Created on Jul 31, 2013
 @author: developer
 '''
 from fm_services import app
-from flask import session, request, make_response, render_template
-import random
-import json
+from flask import session, request, make_response, render_template, Response
 import md5
-
-class UserDb:
-    class User:
-        def __init__(self):
-            self.user_id = None
-            self.email = None
-            self.image = None
-            self.device = None
-        def json(self):
-            return json.dumps([{'id':self.user_id,
-                                'email':self.email,
-                                'image':self.image
-                                }])
-        def __str__(self):
-            return self.json()
-    
-    def __init__(self):
-        self.users = {}
-        self.by_device = {}
-    
-    def find_by_device(self, device):
-        if device in self.by_device:
-            return self.by_device[device]
-        else:
-            return None
-        
-    def find_by_id(self, user_id):
-        user_id = int(user_id)
-        if user_id in self.users:
-            return self.users[user_id]
-        else:
-            return None
-
-    def add(self, email, image, device):
-        if self.find_by_device(device):
-            return None
-        
-        new_id = random.randint(0, 1000000)
-        while self.find_by_id(new_id):
-            new_id = random.randint(0, 1000000)
-        
-        new_user = UserDb.User()
-        new_user.user_id = new_id
-        new_user.email = email
-        new_user.image = image
-        new_user.device = device
-        
-        self.users[new_id] = new_user
-        self.by_device[device] = new_user
-        app.logger.debug(str.format("{0}", self.users))
-        
-        return new_user
+from functools import wraps
 
 class UserManager:
     def __init__(self, app):
@@ -73,6 +20,7 @@ class UserManager:
             user = self.db.find_by_device(mac)
             if user:
                 session['user_id'] = user.user_id
+                self.db.login(user.user_id)
                 resp = make_response(user.json(), 200)
                 resp.mimetype = 'application/json'
                 return resp
@@ -124,26 +72,34 @@ class UserManager:
         else:
             return ("User not found", 404)
     
-    def find_by_device(self, mac, jsonp_clbk):
+    def find_by_device(self, mac):
         user = self.db.find_by_device(mac)
         if user:
-            if not jsonp_clbk:
-                resp = make_response(user.json(), 200)
-            else:
-                resp = make_response(jsonp_clbk+'('+user.json()+')', 200)
-                resp.mimetype = 'application/json'
-                return resp
+            resp = make_response(user.json(), 200)
+            resp.mimetype = 'application/json'
+            return resp
         else:
             return ("User not found", 404)
             
 
-app.db['users'] = UserDb()
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
 
 #===============================================================================
 # client i/f
 #===============================================================================
+def xsite_enabled(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        resp = f(*args, **kwargs)
+        app.logger.debug(resp)
+        if isinstance(resp, Response):
+            resp.headers['Access-Control-Allow-Origin'] = '*'
+            app.logger.debug(resp.headers)
+        return resp
+    return decorated_function
+
+
 @app.route('/user/<user_id>', methods=["PUT","GET"])
 def user_get(user_id):
     if request.method == "GET":
@@ -175,13 +131,11 @@ def user_create():
         return this_service.create_user(session, request)
 
 @app.route('/user/find', methods=["GET"])
+@xsite_enabled
 def user_find():
     if 'id' in request.args:
         mac = request.args['id']
-        callback = None
-        if 'callback' in request.args:
-            callback = request.args['callback']
-        return this_service.find_by_device(mac, callback)
+        return this_service.find_by_device(mac)
     else:
         return ('id missing', 400)
 
