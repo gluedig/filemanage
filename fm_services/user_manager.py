@@ -15,7 +15,7 @@ class UserManager:
             
     def login_device(self, session, mac):
         if not app.services['client_manager'].register(mac, session):
-            return (False, "Client registration failed")
+            return ("Client registration failed", 400)
         else:
             user = self.db.find_by_device(mac)
             if user:
@@ -28,8 +28,11 @@ class UserManager:
                 return ("Associated user not found", 404)
     
     def create_user_random(self, session, mac):
-        if self.db.find_by_device(mac):
-            return (False, "Device already associated")
+        user = self.db.find_by_device(mac)
+        if user:
+            resp = make_response(user.json(), 200)
+            resp.mimetype = 'application/json'
+            return resp
         
         new_user = self.db.add("", "", mac)
         if new_user:
@@ -42,17 +45,17 @@ class UserManager:
         
     def create_user(self, session, request):
         if 'email' not in request.form or 'mac' not in request.form:
-            return (False, "Not enough form params")
+            return ("Not enough form params", 400)
         
         email = request.form['email']
         mac = request.form['mac']
         email_hash = md5.md5(email.strip().lower()).hexdigest()
         
         if email == '' or mac == '':
-            return (False, 'Wrong form data')
+            return ('Wrong form data', 400)
         
         if self.db.find_by_device(mac):
-            return (False, "Device already associated")
+            return ("Device already associated", 400)
         
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
         new_user = self.db.add(email, img_url, mac)
@@ -95,6 +98,7 @@ def xsite_enabled(f):
         if isinstance(resp, Response):
             resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT'
             resp.headers['Access-Control-Allow-Origin'] = '*'
+            #resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With'
         return resp
     return decorated_function
 
