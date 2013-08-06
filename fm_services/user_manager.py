@@ -5,7 +5,7 @@ Created on Jul 31, 2013
 '''
 from fm_services import app
 from flask import session, request, make_response, render_template, Response
-import md5
+import hashlib
 from functools import wraps
 import json
 
@@ -22,7 +22,7 @@ class UserManager:
         return resp
     
     def check_login(self, session):
-        if 'user_id' in session:
+        if 'user_id' in session and self.db.find_by_id(session['user_id']):
             resp = make_response(json.dumps([session['user_id']], 200))
             resp.mimetype = 'application/json'
             return resp
@@ -38,23 +38,27 @@ class UserManager:
             return ("Not enough form params", 400)
         
         email = request.form['email']
-        password = request.form['password']
-        mac = request.form['id']      
+        mac = request.form['id']
         if email == '' or id == '':
             return ('Wrong form data', 400)
         
+        password = request.form['password']
+
         if not app.services['client_manager'].register(mac, session):
             return ("Client registration failed", 400)
         
         user = self.db.find_by_name(email)
         if user:
-            self.db.associate_device(user.user_id, mac)
-            return self._login(session, user)
+            if user.check_password(password):
+                self.db.associate_device(user.user_id, mac)
+                return self._login(session, user)
+            else:
+                return ("Wrong username/password", 401)
         else:
             return ("User not found", 404)
     
     def create_user_random(self, session, mac):
-        user = self.db.add("", "", mac)
+        user = self.db.add("", "", "", mac)
         if user:
             user.email = str.format("User_{0}@sens.us", user.user_id)
             return self._login(session, user)
@@ -62,18 +66,21 @@ class UserManager:
             return ("User creation failed", 400)
         
     def create_user(self, session, request):
-        if 'email' not in request.form or 'id' not in request.form:
+        if 'email' not in request.form \
+        or 'password' not in request.form \
+        or 'id' not in request.form:
             return ("Not enough form params", 400)
         
         email = request.form['email']
+        password = request.form['password']
         mac = request.form['id']
-        email_hash = md5.md5(email.strip().lower()).hexdigest()
+        email_hash = hashlib.md5(email.strip().lower()).hexdigest()
         
         if email == '' or mac == '':
             return ('Wrong form data', 400)
                
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
-        user = self.db.add(email, img_url, mac)
+        user = self.db.add(email, password, img_url, mac)
         if user:
             return self._login(session, user)
         else:

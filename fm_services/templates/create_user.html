@@ -7,7 +7,7 @@
 $(document).ready(
 	function(){
 		$('#create_user').submit(function(obj) {
-			var dataString = 'email='+ $('#email').val() + '&id={{client_mac}}';
+			var dataString = 'email='+ $('#email').val() + '&password='+ $('#password').val() + '&id={{client_mac}}';
 			$.ajax({  
   				type: "POST",  
   				url: "/user/create",  
@@ -31,7 +31,8 @@ $(document).ready(
 
 <h2 id="banner">Create new user</h2>
 <form id="create_user">
-Email: <input id="email" type="text" name="email">
+Email: <input id="email" type="text" name="email"></br>
+Password: <input id="password" type="password" name="password"></br>
 <input type="submit" value="Create">
 </form>
 

@@ -5,37 +5,11 @@ Created on Aug 6, 2013
 '''
 from fm_services import app
 import fm_services.db.user
-import json
+from fm_services.db.user import userDb
 import random
 import datetime
 
 class userDb(fm_services.db.user.userDb):
-    class User:
-        def __init__(self):
-            self.user_id = None
-            self.firstname = "None"
-            self.lastname = "None"
-            self.email = None
-            self.image = None
-            
-            now = datetime.datetime.now()
-            self.created = now
-            self.modified = now
-            self.seen = now
-            
-            self.device = None
-        def json(self):
-            return json.dumps([{'id':self.user_id,
-                                'email':self.email,
-                                'image':self.image,
-                                'firstname':self.firstname,
-                                'lastname':self.lastname,
-                                'created':self.created.isoformat(sep=' '),
-                                'modified':self.modified.isoformat(sep=' '),
-                                'seen':self.seen.isoformat(sep=' ')
-                                }])
-        def __str__(self):
-            return self.json()
     
     
     def __init__(self):
@@ -61,7 +35,7 @@ class userDb(fm_services.db.user.userDb):
                 return user
         return None
 
-    def add(self, email, image, device):
+    def add(self, email, passwd, image, device):
         if self.find_by_device(device):
             return None
         
@@ -72,6 +46,7 @@ class userDb(fm_services.db.user.userDb):
         new_user = userDb.User()
         new_user.user_id = new_id
         new_user.email = email
+        new_user.set_password(passwd)
         new_user.image = image
         new_user.devices = [device]
         
