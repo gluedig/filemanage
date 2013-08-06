@@ -7,39 +7,57 @@ from fm_services import app
 from flask import session, request, make_response, render_template, Response
 import md5
 from functools import wraps
+import json
 
 class UserManager:
     def __init__(self, app):
         self.app = app
         self.db = app.db['users']
-            
-    def login_device(self, session, mac):
+    
+    def _login(self, session, user):
+        session['user_id'] = user.user_id
+        self.db.login(user.user_id)
+        resp = make_response(user.json(), 200)
+        resp.mimetype = 'application/json'
+        return resp
+    
+    def check_login(self, session):
+        if 'user_id' in session:
+            resp = make_response(json.dumps([session['user_id']], 200))
+            resp.mimetype = 'application/json'
+            return resp
+        else:
+            resp = make_response(json.dumps([], 200))
+            resp.mimetype = 'application/json'
+            return resp
+    
+    def login_password(self, session, request):
+        if 'email' not in request.form \
+        or 'password' not in request.form \
+        or 'id' not in request.form:
+            return ("Not enough form params", 400)
+        
+        email = request.form['email']
+        password = request.form['password']
+        mac = request.form['id']      
+        if email == '' or id == '':
+            return ('Wrong form data', 400)
+        
         if not app.services['client_manager'].register(mac, session):
             return ("Client registration failed", 400)
+        
+        user = self.db.find_by_name(email)
+        if user:
+            self.db.associate_device(user.user_id, mac)
+            return self._login(session, user)
         else:
-            user = self.db.find_by_device(mac)
-            if user:
-                session['user_id'] = user.user_id
-                self.db.login(user.user_id)
-                resp = make_response(user.json(), 200)
-                resp.mimetype = 'application/json'
-                return resp
-            else:
-                return ("Associated user not found", 404)
+            return ("User not found", 404)
     
     def create_user_random(self, session, mac):
-        user = self.db.find_by_device(mac)
+        user = self.db.add("", "", mac)
         if user:
-            resp = make_response(user.json(), 200)
-            resp.mimetype = 'application/json'
-            return resp
-        
-        new_user = self.db.add("", "", mac)
-        if new_user:
-            new_user.email = str.format("User_{0}@sens.us", new_user.user_id)
-            resp = make_response(new_user.json(), 200)
-            resp.mimetype = 'application/json'
-            return resp
+            user.email = str.format("User_{0}@sens.us", user.user_id)
+            return self._login(session, user)
         else:
             return ("User creation failed", 400)
         
@@ -53,16 +71,11 @@ class UserManager:
         
         if email == '' or mac == '':
             return ('Wrong form data', 400)
-        
-        if self.db.find_by_device(mac):
-            return ("Device already associated", 400)
-        
+               
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
-        new_user = self.db.add(email, img_url, mac)
-        if new_user:
-            resp = make_response(new_user.json(), 200)
-            resp.mimetype = 'application/json'
-            return resp
+        user = self.db.add(email, img_url, mac)
+        if user:
+            return self._login(session, user)
         else:
             return ("User creation failed", 400)
 
@@ -82,8 +95,14 @@ class UserManager:
             resp.mimetype = 'application/json'
             return resp
         else:
-            return ("User not found", 404)
-            
+            resp = make_response(json.dumps([]), 200)
+            resp.mimetype = 'application/json'
+            return resp
+    
+    def modify_user(self, user_id, session, request):
+        if 'user_id' not in session:
+            return ('No user_id in session', 400)
+        
 
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
@@ -111,19 +130,15 @@ def user_get(user_id):
 
     return ('Not yet', 501)
 
-@app.route('/user/login', methods=["POST","GET"])
+@app.route('/user/login', methods=["POST", "GET"])
 @xsite_enabled
 def user_login():
-    if request.method == "GET":
-        if 'id' in request.args:
-            mac = request.args['id']
-            return this_service.login_device(session, mac)
-        else:
-            return ('id missing', 400)
-        
-    return ('Not yet', 501)
-
-@app.route('/user', methods=["POST","GET"])
+    if request.method == 'POST':
+        return this_service.login_password(session, request)
+    elif request.method == 'GET':
+        return this_service.check_login(session)
+    
+@app.route('/user/create', methods=["POST","GET"])
 @xsite_enabled
 def user_create():
     if request.method == "GET":
@@ -145,7 +160,7 @@ def user_find():
     else:
         return ('id missing', 400)
 
-@app.route('/user/create', methods=["GET"])
+@app.route('/user/create_form', methods=["GET"])
 @xsite_enabled
 def user_create_form():
     mac = None

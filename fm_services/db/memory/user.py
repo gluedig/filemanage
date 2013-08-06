@@ -54,6 +54,12 @@ class userDb(fm_services.db.user.userDb):
             return self.users[user_id]
         else:
             return None
+        
+    def find_by_name(self, user_name):
+        for user in self.users:
+            if user.email == user_name:
+                return user
+        return None
 
     def add(self, email, image, device):
         if self.find_by_device(device):
@@ -67,7 +73,7 @@ class userDb(fm_services.db.user.userDb):
         new_user.user_id = new_id
         new_user.email = email
         new_user.image = image
-        new_user.device = device
+        new_user.devices = [device]
         
         self.users[new_id] = new_user
         self.by_device[device] = new_user
@@ -78,5 +84,12 @@ class userDb(fm_services.db.user.userDb):
         user_id = int(user_id)
         if user_id in self.users:
             self.users[user_id].seen = datetime.datetime.now()
+            
+    def associate_device(self, user_id, device):
+        user_id = int(user_id)
+        if user_id in self.users:
+            user = self[user_id]
+            user.devices.append(device)
+            self.by_device[device] = user
     
 app.db['users'] = userDb()

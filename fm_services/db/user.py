@@ -15,6 +15,10 @@ class userDb():
     @abstractmethod    
     def find_by_id(self, user_id):
         return NotImplemented
+    
+    @abstractmethod    
+    def find_by_name(self, user_name):
+        return NotImplemented
         
     @abstractmethod
     def add(self, email, image, device):
@@ -22,4 +26,8 @@ class userDb():
     
     @abstractmethod
     def login(self, user_id):
+        return NotImplemented
+    
+    @abstractmethod
+    def associate_device(self, user_id, device):
         return NotImplemented
