@@ -105,8 +105,8 @@ class UserManager:
     
     def find_by_device(self, mac):
         user = self.db.find_by_device(mac)
-        if user:
-            resp = make_response(user.json(), 200)
+        if user and len(user) == 1:
+            resp = make_response(user[0].json(), 200)
             resp.mimetype = 'application/json'
             return resp
         else:

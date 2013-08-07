@@ -30,15 +30,12 @@ class userDb(fm_services.db.user.userDb):
             return None
         
     def find_by_name(self, user_name):
-        for user in self.users:
+        for user in self.users.values():
             if user.email == user_name:
                 return user
         return None
 
     def add(self, email, passwd, image, device):
-        if self.find_by_device(device):
-            return None
-        
         new_id = random.randint(0, 1000000)
         while self.find_by_id(new_id):
             new_id = random.randint(0, 1000000)
@@ -48,10 +45,12 @@ class userDb(fm_services.db.user.userDb):
         new_user.email = email
         new_user.set_password(passwd)
         new_user.image = image
-        new_user.devices = [device]
+        new_user.device = [device]
         
         self.users[new_id] = new_user
-        self.by_device[device] = new_user
+        if not device in self.by_device:
+            self.by_device[device] = []
+        self.by_device[device].append(new_user)
 
         return new_user
     
@@ -63,8 +62,12 @@ class userDb(fm_services.db.user.userDb):
     def associate_device(self, user_id, device):
         user_id = int(user_id)
         if user_id in self.users:
-            user = self[user_id]
-            user.devices.append(device)
-            self.by_device[device] = user
-    
+            user = self.users[user_id]
+            if not device in user.device:
+                if not device in self.by_device:
+                    self.by_device[device] = []
+                self.by_device[device].append(user)
+                user.device.append(device)
+
+
 app.db['users'] = userDb()

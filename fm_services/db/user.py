@@ -25,7 +25,7 @@ class userDb():
             self.modified = now
             self.seen = now
 
-            self.device = None
+            self.device = []
         def json(self):
             return json.dumps([{'id':self.user_id,
                                 'email':self.email,
