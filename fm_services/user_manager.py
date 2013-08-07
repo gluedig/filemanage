@@ -8,6 +8,7 @@ from flask import session, request, make_response, render_template, Response
 import hashlib
 from functools import wraps
 import json
+import datetime
 
 class UserManager:
     def __init__(self, app):
@@ -27,6 +28,8 @@ class UserManager:
             resp.mimetype = 'application/json'
             return resp
         else:
+            if 'user_id' in session:
+                session.pop('user_id')
             resp = make_response(json.dumps([], 200))
             resp.mimetype = 'application/json'
             return resp
@@ -109,7 +112,26 @@ class UserManager:
     def modify_user(self, user_id, session, request):
         if 'user_id' not in session:
             return ('No user_id in session', 400)
-        
+        if not int(user_id) == int(session['user_id']):
+            return ('Cannot modify other user', 403)
+
+        user = self.db.find_by_id(user_id)
+        if not user:
+            return ('user not found', 404)
+
+        new_data = request.get_json(silent=True)
+        if not new_data:
+            return ('Cannot parse user data JSON', 400)
+
+        modified = False
+        for key, value in new_data[0].iteritems():
+            if hasattr(user, key):
+                setattr(user, key, value)
+                modified = True
+
+        if modified:
+            user.modified = datetime.datetime.now()
+        return 'OK'
 
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
@@ -134,8 +156,8 @@ def xsite_enabled(f):
 def user_get(user_id):
     if request.method == "GET":
         return this_service.get_user(user_id)
-
-    return ('Not yet', 501)
+    elif request.method == "PUT":
+        return this_service.modify_user(user_id, session, request)
 
 @app.route('/user/login', methods=["POST", "GET"])
 @xsite_enabled
