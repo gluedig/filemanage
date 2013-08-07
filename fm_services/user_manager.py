@@ -60,6 +60,11 @@ class UserManager:
         else:
             return ("User not found", 404)
     
+    def logout(self, session):
+        if 'user_id' in session:
+            session.pop('user_id')
+        return ('OK', 200)
+
     def create_user_random(self, session, mac):
         user = self.db.add("", "", "", mac)
         if user:
@@ -166,7 +171,12 @@ def user_login():
         return this_service.login_password(session, request)
     elif request.method == 'GET':
         return this_service.check_login(session)
-    
+
+@app.route('/user/logout', methods=["GET"])
+@xsite_enabled
+def user_logout():
+    return this_service.logout(session)
+
 @app.route('/user/create', methods=["POST","GET"])
 @xsite_enabled
 def user_create():
