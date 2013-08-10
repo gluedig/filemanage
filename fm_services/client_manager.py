@@ -19,9 +19,9 @@ class ClientManager:
         session['mac'] = mac
         if self.db.register(mac):
             self.app.signals['client-register'].send(self.app, mac=mac)
-            return True
+            return ('OK', 200)
         else:
-            return False
+            return ('Client registration failed', 500)
     
     def unregister(self, session):
         if 'mac' in session:
@@ -31,9 +31,9 @@ class ClientManager:
                 self.app.signals['client-unregister'].send(self.app, mac=mac)
             else:
                 self.app.logger.debug(str.format("Client MAC: {0} found in session but not in db\n", mac))
-            return True
+            return ('OK', 200)
         else:
-            return False
+            return ('No MAC in session', 400)
     
     def dump(self):
         return self.db.dump()
@@ -57,24 +57,19 @@ this_service = app.services['client_manager']
 #===============================================================================
 @app.route('/client/register/<mac>')
 def client_register_route(mac):
-    if this_service.register(mac, session):
-        return 'OK'
-    else:
-        return ('Client registration failed\n', 404)
+    return this_service.register(mac, session)
+
 @app.route('/client/unregister')
 def client_unregister_route():
-    if this_service.unregister(session):
-        return 'OK'
-    else:
-        return ('No MAC in session\n', 404)
+    return this_service.unregister(session)
         
 @app.route('/client/mac')
 def client_mac_route():
     mac = this_service.get_mac(session)
-    if not mac:
-            return ('No MAC in session\n', 404)
+    if mac:
+        return (mac, 200)
     else:
-        return mac
+        return ('No MAC in session', 404)
 
 @app.route('/client/dump')
 def client_dump_route():
