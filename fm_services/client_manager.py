@@ -41,8 +41,14 @@ class ClientManager:
     #interface methods
     def is_registered(self, mac):
         return self.db.is_registered(mac)
-        
-        
+
+    def get_mac(self, session):
+        if 'mac' not in session:
+            return False
+        else:
+            return session['mac']
+
+
 app.services['client_manager'] = ClientManager(app)
 this_service = app.services['client_manager']
 
@@ -64,10 +70,11 @@ def client_unregister_route():
         
 @app.route('/client/mac')
 def client_mac_route():
-    if 'mac' not in session:
+    mac = this_service.get_mac(session)
+    if not mac:
             return ('No MAC in session\n', 404)
-
-    return session['mac']
+    else:
+        return mac
 
 @app.route('/client/dump')
 def client_dump_route():

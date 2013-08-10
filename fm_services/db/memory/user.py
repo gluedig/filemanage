@@ -35,7 +35,7 @@ class userDb(fm_services.db.user.userDb):
                 return user
         return None
 
-    def add(self, email, passwd, image, device):
+    def add(self, email, passwd, image):
         new_id = random.randint(0, 1000000)
         while self.find_by_id(new_id):
             new_id = random.randint(0, 1000000)
@@ -45,12 +45,8 @@ class userDb(fm_services.db.user.userDb):
         new_user.email = email
         new_user.set_password(passwd)
         new_user.image = image
-        new_user.device = [device]
-        
+
         self.users[new_id] = new_user
-        if not device in self.by_device:
-            self.by_device[device] = []
-        self.by_device[device].append(new_user)
 
         return new_user
     

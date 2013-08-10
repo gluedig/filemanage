@@ -36,24 +36,19 @@ class UserManager:
     
     def login_password(self, session, request):
         if 'email' not in request.form \
-        or 'password' not in request.form \
-        or 'id' not in request.form:
+        or 'password' not in request.form:
             return ("Not enough form params", 400)
         
         email = request.form['email']
-        mac = request.form['id']
-        if email == '' or id == '':
-            return ('Wrong form data', 400)
-        
         password = request.form['password']
-
-        if not app.services['client_manager'].register(mac, session):
-            return ("Client registration failed", 400)
-        
+        if email == '':
+            return ('Wrong form data', 400)
         user = self.db.find_by_name(email)
         if user:
             if user.check_password(password):
-                self.db.associate_device(user.user_id, mac)
+                mac = app['client_manager'].get_mac(session)
+                if mac:
+                    self.db.associate_device(user.user_id, mac)
                 return self._login(session, user)
             else:
                 return ("Wrong username/password", 401)
@@ -65,9 +60,13 @@ class UserManager:
             session.pop('user_id')
         return ('OK', 200)
 
-    def create_user_random(self, session, mac):
-        user = self.db.add("", "", "", mac)
+    def create_user_random(self, session):
+        user = self.db.add("", "", "")
         if user:
+            mac = app['client_manager'].get_mac(session)
+            if mac:
+                self.db.associate_device(user.user_id, mac)
+
             user.email = str.format("User_{0}@sens.us", user.user_id)
             return self._login(session, user)
         else:
@@ -75,21 +74,23 @@ class UserManager:
         
     def create_user(self, session, request):
         if 'email' not in request.form \
-        or 'password' not in request.form \
-        or 'id' not in request.form:
-            return ("Not enough form params", 400)
+        or 'password' not in request.form:
+                    return ("Not enough form params", 400)
         
         email = request.form['email']
         password = request.form['password']
-        mac = request.form['id']
         email_hash = hashlib.md5(email.strip().lower()).hexdigest()
-        
-        if email == '' or mac == '':
+
+        if email == '':
             return ('Wrong form data', 400)
-               
+
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
-        user = self.db.add(email, password, img_url, mac)
+        user = self.db.add(email, password, img_url)
+
         if user:
+            mac = app['client_manager'].get_mac(session)
+            if mac:
+                self.db.associate_device(user.user_id, mac)
             return self._login(session, user)
         else:
             return ("User creation failed", 400)
@@ -181,12 +182,7 @@ def user_logout():
 @xsite_enabled
 def user_create():
     if request.method == "GET":
-        if 'id' in request.args:
-            mac = request.args['id']
-            return this_service.create_user_random(session, mac)
-        else:
-            return ('id missing', 400)
-        
+        return this_service.create_user_random(session)
     elif request.method == "POST":
         return this_service.create_user(session, request)
 

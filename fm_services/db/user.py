@@ -61,7 +61,7 @@ class userDb():
         return NotImplemented
         
     @abstractmethod
-    def add(self, email, passwd, image, device):
+    def add(self, email, passwd, image):
         return NotImplemented
     
     @abstractmethod
