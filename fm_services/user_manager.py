@@ -104,17 +104,6 @@ class UserManager:
         else:
             return ("User not found", 404)
     
-    def find_by_device(self, mac):
-        user = self.db.find_by_device(mac)
-        if user and len(user) == 1:
-            resp = make_response(user[0].json(), 200)
-            resp.mimetype = 'application/json'
-            return resp
-        else:
-            resp = make_response(json.dumps([]), 200)
-            resp.mimetype = 'application/json'
-            return resp
-    
     def modify_user(self, user_id, session, request):
         if 'user_id' not in session:
             return ('No user_id in session', 400)
@@ -185,15 +174,6 @@ def user_create():
         return this_service.create_user_random(session)
     elif request.method == "POST":
         return this_service.create_user(session, request)
-
-@app.route('/user/find', methods=["GET"])
-@xsite_enabled
-def user_find():
-    if 'id' in request.args:
-        mac = request.args['id']
-        return this_service.find_by_device(mac)
-    else:
-        return ('id missing', 400)
 
 @app.route('/user/create_form', methods=["GET"])
 @xsite_enabled
