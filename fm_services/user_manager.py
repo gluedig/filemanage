@@ -219,7 +219,6 @@ def user_contacts():
     
 
 @app.route('/user/create_form', methods=["GET"])
-@xsite_enabled
 def user_create_form():
     mac = None
     if 'mac' in session:
@@ -230,4 +229,13 @@ def user_create_form():
         mac = 'unknown'
     return render_template('create_user.html', client_mac=mac)
 
-
+@app.route('/user/login_form', methods=["GET"])
+def user_login_form():
+    mac = None
+    if 'mac' in session:
+        mac = session['mac']
+    if not mac and request.args and 'mac' in request.args:
+        mac = request.args['mac']
+    if not mac:
+        mac = 'unknown'
+    return render_template('login_user.html', client_mac=mac)
