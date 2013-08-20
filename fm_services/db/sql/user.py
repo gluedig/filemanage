@@ -29,7 +29,7 @@ class userDb(fm_services.db.user.userDb):
         user_id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
         firstname = Column(String(50))
         lastname = Column(String(50))
-        email = Column(String(50))
+        email = Column(String(50), unique=True)
         image = Column(String(50))
         password = Column(String(50))
         created = Column(DateTime())
@@ -88,8 +88,8 @@ class userDb(fm_services.db.user.userDb):
         try:
             users = self.session.query(self.User)\
                 .filter(or_(self.User.email == search_term,\
-                            self.User.lastname == search_term,\
-                            self.User.firstname == search_term)).all()
+                            self.User.lastname.like('%'+search_term+'%'),\
+                            self.User.firstname.like('%'+search_term+'%'))).all()
             return users
         except MultipleResultsFound:
             return []
