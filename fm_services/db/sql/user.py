@@ -9,7 +9,7 @@ from fm_services.db.user import userDb
 from fm_services.db.sql import Base, Session
 import datetime
 
-from sqlalchemy import Column, Integer, String, Sequence, DateTime, Table, ForeignKey
+from sqlalchemy import Column, Integer, String, Sequence, DateTime, Table, ForeignKey, or_
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
@@ -84,6 +84,20 @@ class userDb(fm_services.db.user.userDb):
         
         return None
     
+    def find(self, search_term):
+        try:
+            users = self.session.query(self.User)\
+                .filter(or_(self.User.email == search_term,\
+                            self.User.lastname == search_term,\
+                            self.User.firstname == search_term)).all()
+            return users
+        except MultipleResultsFound:
+            return []
+        except NoResultFound:
+            return []
+
+        return []
+
     def login(self, user_id):
         user = self.find_by_id(user_id)
         if user:

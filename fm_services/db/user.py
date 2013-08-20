@@ -54,10 +54,14 @@ class userDb():
     def find_by_id(self, user_id):
         return NotImplemented
     
-    @abstractmethod    
+    @abstractmethod
     def find_by_name(self, user_name):
         return NotImplemented
-        
+
+    @abstractmethod
+    def find(self, search_term):
+        return NotImplemented
+
     @abstractmethod
     def add(self, email, passwd, image):
         return NotImplemented

@@ -159,7 +159,20 @@ class UserManager:
             return ('OK', 200)
         else:
             return ('NOK', 500)
-    
+
+    def users_search(self, session, request):
+        if 'user_id' not in session:
+            return ('No user_id in session', 400)
+
+        if 'query' not in request.args:
+                    return ("Not enough form params", 400)
+        search_term = request.args['query']
+        cont = []
+        for contact in self.db.find(search_term):
+            cont.append(contact.json())
+
+        return json.dumps(cont)
+
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
 
@@ -216,7 +229,11 @@ def user_contacts():
         return this_service.delete_contact(session, request)
     elif request.method == 'GET':
         return this_service.get_contacts(session)
-    
+
+@app.route('/users', methods=["GET"])
+@xsite_enabled
+def users_search():
+    return this_service.users_search(session, request)
 
 @app.route('/user/create_form', methods=["GET"])
 def user_create_form():
