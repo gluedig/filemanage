@@ -13,9 +13,6 @@ class ClientManager:
     
     #web methods
     def register(self, mac, session):
-        #if mac in self.clients:
-        #    return (str.format('Client {0} already seen\n', mac), 404)
-        session.clear()
         session['mac'] = mac
         if self.db.register(mac):
             self.app.signals['client-register'].send(self.app, mac=mac)
@@ -26,7 +23,6 @@ class ClientManager:
     def unregister(self, session):
         if 'mac' in session:
             mac = session.pop('mac')
-            session.clear()
             if self.db.unregister(mac):
                 self.app.signals['client-unregister'].send(self.app, mac=mac)
             else:

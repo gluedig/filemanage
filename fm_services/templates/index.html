@@ -9,10 +9,27 @@
 -->
 </head>
 <body>
-<h2>Client: {{client_mac}}</h2>
+<h2 id="register">MAC: {{client_mac}}</h2>
 <h2 id="login">Logging in..</h2>
 
 <script>
+function register_mac() {
+	var mac = '{{client_mac}}';
+	if ( mac == 'unknown') {
+		return;
+	}
+	
+	$.ajax({
+		url: "/client/register/{{client_mac}}",
+		context: document.body,
+		dataType: 'json'
+	})
+	.success(function(data, status, jqxhr) {
+		$('#register').append(" registered");
+	});
+};
+
+
 function login() {
 	$.ajax({
 		url: "/user/login",
@@ -26,12 +43,13 @@ function login() {
 			resp = jqxhr.responseJSON[0];
 			console.log(resp)
 		
-			$('#login').text("Login done");
+			$('#login').text("User logged-in");
 			get_user(resp);			
 			find_monitor();
 		} else {
-			$('#login').text('Login failed ');
-			$('#login').append('<a href="/user/create_form">please create an account</a>');
+			$('#login').text('User not logged-in');
+			$(this).append('please <a href="/user/create_form">create an account</a>');
+			$(this).append(' or <a href="/user/login_form">login</a>');
 		}
 	});
 };
@@ -80,6 +98,7 @@ function find_monitor() {
 
 $(document).ready(
 	function(){
+		register_mac();
 		login();	
 	}
 ); 

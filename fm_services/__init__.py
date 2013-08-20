@@ -45,10 +45,8 @@ def root():
     mac = None
     if request.args and 'mac' in request.args:
         mac = request.args['mac']
-
     if not mac and 'mac' in session:
         mac = session['mac']
-
     if not mac:
-        return ('Client MAC address not known', 404)
+        mac = 'unknown'
     return render_template('index.html', client_mac=mac, sockjs_url = app.config['SOCKJS_URL'])

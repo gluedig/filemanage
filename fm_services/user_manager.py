@@ -224,13 +224,10 @@ def user_create_form():
     mac = None
     if 'mac' in session:
         mac = session['mac']
-
     if not mac and request.args and 'mac' in request.args:
         mac = request.args['mac']
-
     if not mac:
-        return ('Client MAC address not known', 404)
-    
+        mac = 'unknown'
     return render_template('create_user.html', client_mac=mac)
 
 
