@@ -46,9 +46,6 @@ class UserManager:
         user = self.db.find_by_name(email)
         if user:
             if user.check_password(password):
-                mac = app.services['client_manager'].get_mac(session)
-                if mac:
-                    self.db.associate_device(user.user_id, mac)
                 return self._login(session, user)
             else:
                 return ("Wrong username/password", 401)
@@ -63,10 +60,6 @@ class UserManager:
     def create_user_random(self, session):
         user = self.db.add("", "", "")
         if user:
-            mac = app.services['client_manager'].get_mac(session)
-            if mac:
-                self.db.associate_device(user.user_id, mac)
-
             user.email = str.format("User_{0}@sens.us", user.user_id)
             return self._login(session, user)
         else:
@@ -88,9 +81,6 @@ class UserManager:
         user = self.db.add(email, password, img_url)
 
         if user:
-            mac = app.services['client_manager'].get_mac(session)
-            if mac:
-                self.db.associate_device(user.user_id, mac)
             return self._login(session, user)
         else:
             return ("User creation failed", 400)

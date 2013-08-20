@@ -50,7 +50,3 @@ class userDb():
     @abstractmethod
     def login(self, user_id):
         return NotImplemented
-    
-    @abstractmethod
-    def associate_device(self, user_id, device):
-        return NotImplemented

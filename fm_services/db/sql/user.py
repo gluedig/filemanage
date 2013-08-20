@@ -73,10 +73,7 @@ class userDb(fm_services.db.user.userDb):
         user = self.find_by_id(user_id)
         if user:
             user.seen = datetime.datetime.now()
-            
-    def associate_device(self, user_id, device):
-        pass
-    
+
     def __init__(self):
         self.session = Session()
     

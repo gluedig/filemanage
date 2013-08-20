@@ -63,16 +63,5 @@ class userDb(fm_services.db.user.userDb):
         user_id = int(user_id)
         if user_id in self.users:
             self.users[user_id].seen = datetime.datetime.now()
-            
-    def associate_device(self, user_id, device):
-        user_id = int(user_id)
-        if user_id in self.users:
-            user = self.users[user_id]
-            if not device in user.device:
-                if not device in self.by_device:
-                    self.by_device[device] = []
-                self.by_device[device].append(user)
-                user.device.append(device)
-
 
 app.db['users'] = userDb()
