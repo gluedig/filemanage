@@ -118,6 +118,48 @@ class UserManager:
             user.modified = datetime.datetime.now()
         return 'OK'
 
+    def get_contacts(self, session):
+        if 'user_id' not in session:
+            return ('No user_id in session', 400)
+        user_id = int(session['user_id'])
+        contacts = self.db.get_contacts(user_id)
+        
+        cont = []
+        for contact in contacts:
+            cont.append(contact.json())
+            
+        resp = make_response(json.dumps(cont), 200)
+        resp.mimetype = 'application/json'
+        return resp 
+    
+    def add_contact(self, session, request):
+        if 'user_id' not in session:
+            return ('No user_id in session', 400)
+        
+        if 'id' not in request.args:
+                    return ("Not enough form params", 400)
+                
+        user_id = int(session['user_id'])
+        contact_id = int(request.args['id'])
+        if self.db.add_contact(user_id, contact_id):
+            return ('OK', 200)
+        else:
+            return ('NOK', 500)
+    
+    def delete_contact(self, session, request):
+        if 'user_id' not in session:
+            return ('No user_id in session', 400)
+        
+        if 'id' not in request.args:
+                    return ("Not enough form params", 400)
+                
+        user_id = int(session['user_id'])
+        contact_id = int(request.args['id'])
+        if self.db.remove_contact(user_id, contact_id):
+            return ('OK', 200)
+        else:
+            return ('NOK', 500)
+    
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
 
@@ -165,6 +207,17 @@ def user_create():
     elif request.method == "POST":
         return this_service.create_user(session, request)
 
+@app.route('/user/contacts', methods=["POST", "GET", "DELETE"])
+@xsite_enabled
+def user_contacts():
+    if request.method == 'POST':
+        return this_service.add_contact(session, request)
+    elif request.method == 'DELETE':
+        return this_service.delete_contact(session, request)
+    elif request.method == 'GET':
+        return this_service.get_contacts(session)
+    
+
 @app.route('/user/create_form', methods=["GET"])
 @xsite_enabled
 def user_create_form():
@@ -179,3 +232,5 @@ def user_create_form():
         return ('Client MAC address not known', 404)
     
     return render_template('create_user.html', client_mac=mac)
+
+

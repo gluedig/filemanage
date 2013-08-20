@@ -10,9 +10,7 @@ import hashlib
 class userDb():
     __metaclass__ = ABCMeta
 
-    class User:
-        #__metaclass__ = ABCMeta
-
+    class User(object):
         def json(self):
             return json.dumps([{'id':self.user_id,
                                 'email':self.email,
@@ -34,8 +32,19 @@ class userDb():
 
         def set_password(self, password):
             self.password = hashlib.sha512(password).hexdigest()
-    
-    @abstractmethod    
+    @abstractmethod
+    def get_contacts(self, user_id):
+        return NotImplemented
+
+    @abstractmethod
+    def add_contact(self, user_id, contact):
+        return NotImplemented
+
+    @abstractmethod
+    def remove_contact(self, user_id, contact):
+        return NotImplemented
+
+    @abstractmethod
     def find_by_id(self, user_id):
         return NotImplemented
     
@@ -50,3 +59,5 @@ class userDb():
     @abstractmethod
     def login(self, user_id):
         return NotImplemented
+    
+    

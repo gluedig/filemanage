@@ -9,11 +9,21 @@ from fm_services.db.user import userDb
 from fm_services.db.sql import Base, Session
 import datetime
 
-from sqlalchemy import Column, Integer, String, Sequence, DateTime
+from sqlalchemy import Column, Integer, String, Sequence, DateTime, Table, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
+contacts_table = Table('contacts', Base.metadata,
+                Column('owner', Integer, ForeignKey('users.user_id'), primary_key=True),
+                Column('contact', Integer, ForeignKey('users.user_id'), primary_key=True)
+                )
+
 class userDb(fm_services.db.user.userDb):
-    
+#    class ContactsList(Base):
+#        __tablename__ = 'contacts'
+#        owner = Column('owner', Integer, ForeignKey('users.user_id'), primary_key=True)
+#        contact = Column('contact', Integer, ForeignKey('users.user_id'))
+#        
     class User(Base, fm_services.db.user.userDb.User):
         __tablename__ = 'users'
         user_id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
@@ -25,6 +35,12 @@ class userDb(fm_services.db.user.userDb):
         created = Column(DateTime())
         modified = Column(DateTime())
         seen = Column(DateTime())
+        
+        contacts = relationship('User', 
+                    secondary=contacts_table,
+                    primaryjoin=('users.c.user_id == contacts.c.owner'),
+                    secondaryjoin=('users.c.user_id == contacts.c.contact'),
+        )
         
         def __init__(self, email, image):
             now = datetime.datetime.now()
@@ -38,7 +54,6 @@ class userDb(fm_services.db.user.userDb):
             
             self.image = image
             self.email = email
-            
     
     def add(self, email, passwd, image):
         new_user = self.User(email, image)
@@ -73,6 +88,33 @@ class userDb(fm_services.db.user.userDb):
         user = self.find_by_id(user_id)
         if user:
             user.seen = datetime.datetime.now()
+    
+    def get_contacts(self, user_id):
+        user = self.find_by_id(user_id)
+        if user:
+            return user.contacts
+        else: 
+            return []
+    
+    def add_contact(self, user_id, contact):
+        user = self.find_by_id(user_id)
+        contact = self.find_by_id(contact)
+        if user and contact:
+            user.contacts.append(contact)
+            self.session.commit()
+            return True
+        else:
+            return False
+    
+    def remove_contact(self, user_id, contact):
+        user = self.find_by_id(user_id)
+        contact = self.find_by_id(contact)
+        if user and contact:
+            user.contacts.remove(contact)
+            self.session.commit()
+            return True
+        else:
+            return False
 
     def __init__(self):
         self.session = Session()
