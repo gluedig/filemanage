@@ -6,7 +6,7 @@ Created on Jun 18, 2013
 from fm_services import app
 from flask import session, request
 
-class GroupManager(object):
+class EventManager(object):
     '''
     classdocs
     '''
@@ -47,7 +47,7 @@ class GroupManager(object):
         
         grp_id = "group-"+mon_id
         if grp_id not in self.groups:
-            new_grp = GroupManager.group(grp_id)
+            new_grp = EventManager.group(grp_id)
             self.groups[grp_id] = new_grp
         self.groups[grp_id].clients.add(mac)
         
@@ -109,26 +109,26 @@ class GroupManager(object):
         
         return mac in self.group_members(grp_id)
             
-app.services['group_manager'] = GroupManager(app)
+app.services['group_manager'] = EventManager(app)
 this_service = app.services['group_manager']
 
 #===============================================================================
 # group i/f
 #===============================================================================
-@app.route('/group/join')
+@app.route('/event/join')
 def group_join_route():
     ip = request.remote_addr
     return this_service.join(ip, session)
 
-@app.route('/group/leave')
+@app.route('/event/leave')
 def group_leave_route():
     return this_service.leave(session)
 
-@app.route('/group/members')
+@app.route('/event/members')
 def group_members_route():
     return this_service.members(session)
 
-@app.route('/group/dump')
+@app.route('/event/dump')
 def group_dump_route():
     return this_service.dump()
 

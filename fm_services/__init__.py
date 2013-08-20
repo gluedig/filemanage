@@ -28,7 +28,7 @@ import db.memory.user
 
 import monitor_manager
 import client_manager
-import group_manager
+import event_manager
 import filebox
 import events_forwarder
 import user_manager
