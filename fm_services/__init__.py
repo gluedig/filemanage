@@ -23,14 +23,21 @@ app.signals['proximity-change'] = app.signals_namespace.signal('proximity-change
 app.services = {}
 app.db = {}
 
+
+import db.sql.sqllite
+import db.sql.user
+
+from db.sql import Base
+Base.metadata.create_all()
+
 import db.memory.client
-import db.memory.user
+#import db.memory.user
 
 import monitor_manager
 import client_manager
 import event_manager
 import filebox
-import events_forwarder
+#import events_forwarder
 import user_manager
 
 @app.route('/')

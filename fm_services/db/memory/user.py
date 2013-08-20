@@ -6,7 +6,6 @@ Created on Aug 6, 2013
 from fm_services import app
 import fm_services.db.user
 from fm_services.db.user import userDb
-#from fm_services.db.user.userDb import User
 import random
 import datetime
 
@@ -31,12 +30,6 @@ class userDb(fm_services.db.user.userDb):
     def __init__(self):
         self.users = {}
         self.by_device = {}
-    
-    def find_by_device(self, device):
-        if device in self.by_device:
-            return self.by_device[device]
-        else:
-            return None
         
     def find_by_id(self, user_id):
         user_id = int(user_id)

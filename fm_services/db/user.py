@@ -11,7 +11,7 @@ class userDb():
     __metaclass__ = ABCMeta
 
     class User:
-        __metaclass__ = ABCMeta
+        #__metaclass__ = ABCMeta
 
         def json(self):
             return json.dumps([{'id':self.user_id,
@@ -34,10 +34,6 @@ class userDb():
 
         def set_password(self, password):
             self.password = hashlib.sha512(password).hexdigest()
-        
-    @abstractmethod
-    def find_by_device(self, device):
-        return NotImplemented
     
     @abstractmethod    
     def find_by_id(self, user_id):
