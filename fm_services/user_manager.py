@@ -18,7 +18,7 @@ class UserManager:
     def _login(self, session, user):
         session['user_id'] = user.user_id
         self.db.login(user.user_id)
-        resp = make_response(user.json(), 200)
+        resp = make_response(json.dumps([user.json()]), 200)
         resp.mimetype = 'application/json'
         return resp
     
@@ -88,7 +88,7 @@ class UserManager:
     def get_user(self, user_id):
         user = self.db.find_by_id(user_id)
         if user:
-            resp = make_response(user.json(), 200)
+            resp = make_response(json.dumps([user.json()]), 200)
             resp.mimetype = 'application/json'
             return resp
         else:

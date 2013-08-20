@@ -10,19 +10,25 @@ import hashlib
 class userDb():
     __metaclass__ = ABCMeta
 
-    class User(object):
+    class User(json.JSONEncoder):
         def json(self):
-            return json.dumps([{'id':self.user_id,
-                                'email':self.email,
-                                'image':self.image,
-                                'firstname':self.firstname,
-                                'lastname':self.lastname,
-                                'created':self.created.isoformat(sep=' '),
-                                'modified':self.modified.isoformat(sep=' '),
-                                'seen':self.seen.isoformat(sep=' ')
-                                }])
+            return {'id':self.user_id,
+                    'email':self.email,
+                    'image':self.image,
+                    'firstname':self.firstname,
+                    'lastname':self.lastname,
+                    'created':self.created.isoformat(sep=' '),
+                    'modified':self.modified.isoformat(sep=' '),
+                    'seen':self.seen.isoformat(sep=' ')
+                    }
         def __str__(self):
-            return self.json()
+            return json.dumps(self.json())
+
+        def default(self, obj):
+            if isinstance(obj, userDb.User):
+                return obj.json()
+            else:
+                return json.JSONEncoder.default(self, obj)
 
         def check_password(self, password):
             if hashlib.sha512(password).hexdigest() == self.password:
