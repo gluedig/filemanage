@@ -6,11 +6,27 @@ Created on Aug 6, 2013
 from fm_services import app
 import fm_services.db.user
 from fm_services.db.user import userDb
+#from fm_services.db.user.userDb import User
 import random
 import datetime
 
 class userDb(fm_services.db.user.userDb):
     
+    class User(fm_services.db.user.userDb.User):
+        def __init__(self):
+            self.user_id = None
+            self.firstname = "None"
+            self.lastname = "None"
+            self.email = None
+            self.password = None
+            self.image = None
+
+            now = datetime.datetime.now()
+            self.created = now
+            self.modified = now
+            self.seen = now
+
+            self.device = []
     
     def __init__(self):
         self.users = {}

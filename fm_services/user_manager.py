@@ -46,7 +46,7 @@ class UserManager:
         user = self.db.find_by_name(email)
         if user:
             if user.check_password(password):
-                mac = app['client_manager'].get_mac(session)
+                mac = app.services['client_manager'].get_mac(session)
                 if mac:
                     self.db.associate_device(user.user_id, mac)
                 return self._login(session, user)
@@ -63,7 +63,7 @@ class UserManager:
     def create_user_random(self, session):
         user = self.db.add("", "", "")
         if user:
-            mac = app['client_manager'].get_mac(session)
+            mac = app.services['client_manager'].get_mac(session)
             if mac:
                 self.db.associate_device(user.user_id, mac)
 
@@ -88,7 +88,7 @@ class UserManager:
         user = self.db.add(email, password, img_url)
 
         if user:
-            mac = app['client_manager'].get_mac(session)
+            mac = app.services['client_manager'].get_mac(session)
             if mac:
                 self.db.associate_device(user.user_id, mac)
             return self._login(session, user)

@@ -5,27 +5,14 @@ Created on Aug 6, 2013
 '''
 from abc import ABCMeta, abstractmethod
 import json
-import datetime
 import hashlib
 
 class userDb():
     __metaclass__ = ABCMeta
 
     class User:
-        def __init__(self):
-            self.user_id = None
-            self.firstname = "None"
-            self.lastname = "None"
-            self.email = None
-            self.password = None
-            self.image = None
+        __metaclass__ = ABCMeta
 
-            now = datetime.datetime.now()
-            self.created = now
-            self.modified = now
-            self.seen = now
-
-            self.device = []
         def json(self):
             return json.dumps([{'id':self.user_id,
                                 'email':self.email,
