@@ -4,9 +4,10 @@ Created on Jul 31, 2013
 @author: developer
 '''
 from fm_services import app
-from flask import session, request, make_response, render_template, Response
+from fm_services.decorators import xsite_enabled, user_loggedin
+from flask import session, request, make_response, render_template
 import hashlib
-from functools import wraps
+
 import json
 import datetime
 
@@ -93,10 +94,9 @@ class UserManager:
             return resp
         else:
             return ("User not found", 404)
-    
+
+    @user_loggedin
     def modify_user(self, user_id, session, request):
-        if 'user_id' not in session:
-            return ('No user_id in session', 400)
         if not int(user_id) == int(session['user_id']):
             return ('Cannot modify other user', 403)
 
@@ -118,9 +118,8 @@ class UserManager:
             user.modified = datetime.datetime.now()
         return 'OK'
 
+    @user_loggedin
     def get_contacts(self, session):
-        if 'user_id' not in session:
-            return ('No user_id in session', 400)
         user_id = int(session['user_id'])
         contacts = self.db.get_contacts(user_id)
         
@@ -131,11 +130,9 @@ class UserManager:
         resp = make_response(json.dumps(cont), 200)
         resp.mimetype = 'application/json'
         return resp 
-    
+
+    @user_loggedin
     def add_contact(self, session, request):
-        if 'user_id' not in session:
-            return ('No user_id in session', 400)
-        
         if 'id' not in request.args:
                     return ("Not enough form params", 400)
                 
@@ -145,11 +142,9 @@ class UserManager:
             return ('OK', 200)
         else:
             return ('NOK', 500)
-    
+
+    @user_loggedin
     def delete_contact(self, session, request):
-        if 'user_id' not in session:
-            return ('No user_id in session', 400)
-        
         if 'id' not in request.args:
                     return ("Not enough form params", 400)
                 
@@ -160,10 +155,8 @@ class UserManager:
         else:
             return ('NOK', 500)
 
+    @user_loggedin
     def users_search(self, session, request):
-        if 'user_id' not in session:
-            return ('No user_id in session', 400)
-
         if 'query' not in request.args:
                     return ("Not enough form params", 400)
         search_term = request.args['query']
@@ -179,18 +172,6 @@ this_service = app.services['user_manager']
 #===============================================================================
 # client i/f
 #===============================================================================
-def xsite_enabled(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        resp = f(*args, **kwargs)
-        if isinstance(resp, Response):
-            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT'
-            resp.headers['Access-Control-Allow-Origin'] = '*'
-            #resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With'
-        return resp
-    return decorated_function
-
-
 @app.route('/user/<user_id>', methods=["PUT","GET"])
 @xsite_enabled
 def user_get(user_id):
