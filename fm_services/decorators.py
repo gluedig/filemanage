@@ -20,23 +20,25 @@ def xsite_enabled(f):
         return resp
     return decorated_function
 
+def insession(variable):
+    def real_decorator(function):
+        def wrapper(*args, **kwargs):
+            found = False
+            for arg in args:
+                if isinstance(arg, LocalProxy):
+                    arg = arg._get_current_object()
+
+                if isinstance(arg, SecureCookieSession):
+                    if variable in arg:
+                        found = True
+
+            if found:
+                resp = function(*args, **kwargs)
+                return resp
+            else:
+                return (str.format('No {0} in session', variable), 400)
+        return wrapper
+    return real_decorator
+
 def user_loggedin(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        logged_in = False
-
-        for arg in args:
-            if isinstance(arg, LocalProxy):
-                arg = arg._get_current_object()
-
-            if isinstance(arg, SecureCookieSession):
-                if 'user_id' in arg:
-                    logged_in = True
-
-        if logged_in:        
-            resp = f(*args, **kwargs)
-            return resp
-        else:
-            return ('No user_id in session', 400)
-
-    return decorated_function
+    return insession('user_id')(f)
