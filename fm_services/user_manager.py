@@ -229,7 +229,7 @@ def user_contacts():
 def users_search():
     return this_service.users_search(session, request)
 
-@app.route('/users/list', methods=["GET", "OPTIONS"])
+@app.route('/users/list', methods=["GET"])
 @xsite_enabled
 def users_list():
     return this_service.users_list()

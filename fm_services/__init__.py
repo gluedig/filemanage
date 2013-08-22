@@ -23,15 +23,18 @@ app.signals['proximity-change'] = app.signals_namespace.signal('proximity-change
 app.services = {}
 app.db = {}
 
+from decorators import xsite_enabled
+@xsite_enabled
+def options_response():
+    return Flask.make_default_options_response(app)
+app.make_default_options_response = options_response
 
 import db.sql.sqllite
 import db.sql.user
+import db.memory.client
 
 from db.sql import Base
 Base.metadata.create_all()
-
-import db.memory.client
-#import db.memory.user
 
 import monitor_manager
 import client_manager
