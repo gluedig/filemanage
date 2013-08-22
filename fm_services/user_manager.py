@@ -166,6 +166,13 @@ class UserManager:
 
         return json.dumps(cont)
 
+    def users_list(self):
+        cont = []
+        for contact in self.db.find(''):
+            cont.append(contact.json())
+
+        return json.dumps(cont)
+
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
 
@@ -215,6 +222,11 @@ def user_contacts():
 @xsite_enabled
 def users_search():
     return this_service.users_search(session, request)
+
+@app.route('/users/list', methods=["GET"])
+@xsite_enabled
+def users_list():
+    return this_service.users_list()
 
 @app.route('/user/create_form', methods=["GET"])
 def user_create_form():
