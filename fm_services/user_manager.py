@@ -7,7 +7,6 @@ from fm_services import app
 from fm_services.decorators import xsite_enabled, user_loggedin
 from flask import session, request, make_response, render_template
 import hashlib
-
 import json
 import datetime
 
@@ -38,25 +37,25 @@ class UserManager:
     def login_password(self, session, request):
         if 'email' not in request.form \
         or 'password' not in request.form:
-            return ("Not enough form params", 400)
+            return make_response("Not enough form params", 400)
         
         email = request.form['email']
         password = request.form['password']
         if email == '':
-            return ('Wrong form data', 400)
+            return make_response('Wrong form data', 400)
         user = self.db.find_by_name(email)
         if user:
             if user.check_password(password):
                 return self._login(session, user)
             else:
-                return ("Wrong username/password", 401)
+                return make_response("Wrong username/password", 401)
         else:
-            return ("User not found", 404)
+            return make_response("User not found", 404)
     
     def logout(self, session):
         if 'user_id' in session:
             session.pop('user_id')
-        return ('OK', 200)
+        return make_response('OK', 200)
 
     def create_user_random(self, session):
         user = self.db.add("", "", "")
@@ -64,19 +63,19 @@ class UserManager:
             user.email = str.format("User_{0}@sens.us", user.user_id)
             return self._login(session, user)
         else:
-            return ("User creation failed", 400)
+            return make_response("User creation failed", 400)
         
     def create_user(self, session, request):
         if 'email' not in request.form \
         or 'password' not in request.form:
-                    return ("Not enough form params", 400)
+                    return make_response("Not enough form params", 400)
         
         email = request.form['email']
         password = request.form['password']
         email_hash = hashlib.md5(email.strip().lower()).hexdigest()
 
         if email == '':
-            return ('Wrong form data', 400)
+            return make_response('Wrong form data', 400)
 
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
         user = self.db.add(email, password, img_url)
@@ -84,7 +83,7 @@ class UserManager:
         if user:
             return self._login(session, user)
         else:
-            return ("User creation failed", 400)
+            return make_response("User creation failed", 400)
 
     def get_user(self, user_id):
         user = self.db.find_by_id(user_id)
@@ -93,20 +92,20 @@ class UserManager:
             resp.mimetype = 'application/json'
             return resp
         else:
-            return ("User not found", 404)
+            return make_response("User not found", 404)
 
     @user_loggedin
     def modify_user(self, user_id, session, request):
         if not int(user_id) == int(session['user_id']):
-            return ('Cannot modify other user', 403)
+            return make_response('Cannot modify other user', 403)
 
         user = self.db.find_by_id(user_id)
         if not user:
-            return ('user not found', 404)
+            return make_response('user not found', 404)
 
         new_data = request.get_json(silent=True)
         if not new_data:
-            return ('Cannot parse user data JSON', 400)
+            return make_response('Cannot parse user data JSON', 400)
 
         modified = False
         for key, value in new_data[0].iteritems():
@@ -116,7 +115,7 @@ class UserManager:
 
         if modified:
             user.modified = datetime.datetime.now()
-        return 'OK'
+        return make_response('OK', 200)
 
     @user_loggedin
     def get_contacts(self, session):
@@ -139,9 +138,10 @@ class UserManager:
         user_id = int(session['user_id'])
         contact_id = int(request.args['id'])
         if self.db.add_contact(user_id, contact_id):
-            return ('OK', 200)
+            resp = make_response('OK', 200)
         else:
-            return ('NOK', 500)
+            resp = make_response('NOK', 500)
+        return resp
 
     @user_loggedin
     def delete_contact(self, session, request):
@@ -151,9 +151,10 @@ class UserManager:
         user_id = int(session['user_id'])
         contact_id = int(request.args['id'])
         if self.db.remove_contact(user_id, contact_id):
-            return ('OK', 200)
+            resp = make_response('OK', 200)
         else:
-            return ('NOK', 500)
+            resp = make_response('NOK', 500)
+        return resp
 
     @user_loggedin
     def users_search(self, session, request):
@@ -164,14 +165,19 @@ class UserManager:
         for contact in self.db.find(search_term):
             cont.append(contact.json())
 
-        return json.dumps(cont)
+        resp = make_response(json.dumps(cont), 200)
+        resp.mimetype = 'application/json'
+        return resp
 
     def users_list(self):
         cont = []
         for contact in self.db.find(''):
             cont.append(contact.json())
 
-        return json.dumps(cont)
+        resp = make_response(json.dumps(cont), 200)
+        resp.mimetype = 'application/json'
+        return resp
+
 
 app.services['user_manager'] = UserManager(app)
 this_service = app.services['user_manager']
@@ -223,7 +229,7 @@ def user_contacts():
 def users_search():
     return this_service.users_search(session, request)
 
-@app.route('/users/list', methods=["GET"])
+@app.route('/users/list', methods=["GET", "OPTIONS"])
 @xsite_enabled
 def users_list():
     return this_service.users_list()

@@ -4,7 +4,7 @@ Created on Aug 21, 2013
 @author: gluedig
 '''
 from functools import wraps
-from flask import Response
+from flask import Response, make_response
 from flask.sessions import SecureCookieSession
 from fm_services import app
 from werkzeug.local import LocalProxy
@@ -14,9 +14,9 @@ def xsite_enabled(f):
     def decorated_function(*args, **kwargs):
         resp = f(*args, **kwargs)
         if isinstance(resp, Response):
-            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT'
+            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
             resp.headers['Access-Control-Allow-Origin'] = '*'
-            #resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With'
+            resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With'
         return resp
     return decorated_function
 
@@ -36,7 +36,7 @@ def insession(variable):
                 resp = function(*args, **kwargs)
                 return resp
             else:
-                return (str.format('No {0} in session', variable), 400)
+                return make_response(str.format('No {0} in session', variable), 400)
         return wrapper
     return real_decorator
 
