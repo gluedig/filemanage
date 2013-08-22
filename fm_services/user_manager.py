@@ -156,7 +156,6 @@ class UserManager:
             resp = make_response('NOK', 500)
         return resp
 
-    @user_loggedin
     def users_search(self, session, request):
         if 'query' not in request.args:
                     return ("Not enough form params", 400)
