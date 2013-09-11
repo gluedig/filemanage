@@ -4,24 +4,15 @@ Created on Jun 12, 2013
 @author: developer
 '''
 from flask import Flask, render_template, request, session
-from blinker import Namespace
 
 app = Flask(__name__, static_url_path='')
 app.config.from_object('fm_services.default_settings')
 
-app.signals_namespace = Namespace()
 app.signals = {}
-app.signals['client-register'] = app.signals_namespace.signal('client-register')
-app.signals['client-unregister'] = app.signals_namespace.signal('client-unregister')
-app.signals['group-member-add'] = app.signals_namespace.signal('group-member-add')
-app.signals['group-member-remove'] = app.signals_namespace.signal('group-member-remove')
-app.signals['file-upload'] = app.signals_namespace.signal('file-upload')
-app.signals['proximity-entered'] = app.signals_namespace.signal('proximity-entered')
-app.signals['proximity-left'] = app.signals_namespace.signal('proximity-left')
-app.signals['proximity-change'] = app.signals_namespace.signal('proximity-change')
-
 app.services = {}
 app.db = {}
+
+import signals
 
 from decorators import xsite_enabled
 @xsite_enabled
