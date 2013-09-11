@@ -23,6 +23,7 @@ app.make_default_options_response = options_response
 import db.sql.sqllite
 import db.sql.user
 import db.sql.hub
+import db.sql.message
 import db.memory.client
 
 from db.sql import Base
@@ -35,6 +36,7 @@ import client_manager
 #import events_forwarder
 import user_manager
 import hub_manager
+import bbs
 
 @app.route('/')
 def root():

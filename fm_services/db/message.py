@@ -13,9 +13,9 @@ class messageDb():
         def json(self):
             return {'id':self.msg_id,
                     'text':self.text,
-                    'user':self.user_id,
-                    'hub':self.hub_id,
-                    'posted':self.posted,
+                    'user':self.user,
+                    'hub':self.hub,
+                    'posted':self.posted.isoformat(sep=' '),
                     }
         def __str__(self):
             return json.dumps(self.json())
@@ -33,20 +33,16 @@ class messageDb():
     @abstractmethod
     def post(self, user_id, hub_id, text):
         return NotImplemented
-    
-    @abstractmethod
-    def update(self, msg_id, text):
-        return NotImplemented
-    
+        
     @abstractmethod
     def remove(self, msg_id):
         return NotImplemented
     
     @abstractmethod
-    def get_by_user(self, user_id, count=False, start=0, end=-1):
+    def get_by_user(self, user_id, count=False, start=0, end=None):
         return NotImplemented
     
     @abstractmethod
-    def get_by_hub(self, hub_id, count=False, start=0, end=-1):
+    def get_by_hub(self, hub_id, count=False, start=0, end=None):
         return NotImplemented
     

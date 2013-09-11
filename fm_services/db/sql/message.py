@@ -44,17 +44,7 @@ class messageDb(fm_services.db.message.messageDb):
             return None
         
         return None
-    
-    def update(self, msg_id, text):
-        msg = self.get(msg_id)
-        if not msg:
-            return None
-        else:
-            msg.text = text
-            self.session.update(msg)
-            self.session.commit()
-            return msg
-            
+                
     def remove(self, msg_id):
         msg = self.get(msg_id)
         if not msg:
@@ -64,41 +54,43 @@ class messageDb(fm_services.db.message.messageDb):
             self.session.commit()
             return True
         
-    def get_by_user(self, user_id, count=False, start=0, end=-1):
+    def get_by_user(self, user_id, count=False, start=0, end=None):
         try:
             if count:
                 msg_no = self.session.query(self.Message)\
                 .filter(self.Message.user == user_id)\
-                .order_by(self.Message.mgs_id).count()
-                return [msg_no]
+                .order_by(self.Message.msg_id).count()
+                return msg_no
             else:
                 msgs = self.session.query(self.Message)\
                 .filter(self.Message.user == user_id)\
-                .order_by(self.Message.mgs_id)[start:end]
-            
+                .order_by(self.Message.msg_id)[start:end]
+                
                 return msgs 
         except NoResultFound:
-            return None
-        
-        return None
+            if count:
+                return 0
+            else:
+                return None
     
-    def get_by_hub(self, hub_id, count=False, start=0, end=-1):
+    def get_by_hub(self, hub_id, count=False, start=0, end=None):
         try:
             if count:
                 msg_no = self.session.query(self.Message)\
                 .filter(self.Message.hub == hub_id)\
-                .order_by(self.Message.mgs_id).count()
-                return [msg_no]
+                .order_by(self.Message.msg_id).count()
+                return msg_no
             else:
                 msgs = self.session.query(self.Message)\
                 .filter(self.Message.hub == hub_id)\
-                .order_by(self.Message.mgs_id)[start:end]
+                .order_by(self.Message.msg_id)[start:end]
             
                 return msgs 
         except NoResultFound:
-            return None
-        
-        return None
+            if count:
+                return 0
+            else:
+                return None
     
     def __init__(self):
         self.session = sql_session
