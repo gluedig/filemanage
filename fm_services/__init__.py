@@ -22,6 +22,7 @@ app.make_default_options_response = options_response
 
 import db.sql.sqllite
 import db.sql.user
+import db.sql.hub
 import db.memory.client
 
 from db.sql import Base
@@ -33,6 +34,7 @@ import client_manager
 #import filebox
 #import events_forwarder
 import user_manager
+import hub_manager
 
 @app.route('/')
 def root():
@@ -43,4 +45,10 @@ def root():
         mac = session['mac']
     if not mac:
         mac = 'unknown'
-    return render_template('index.html', client_mac=mac, sockjs_url = app.config['SOCKJS_URL'])
+    
+    hub = None
+    if request.args and 'hub' in request.args:
+        hub = request.args['hub']
+    if not hub:
+        hub = 'unknown'
+    return render_template('index.html', client_mac=mac, hub=hub, sockjs_url = app.config['SOCKJS_URL'])

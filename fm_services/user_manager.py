@@ -253,4 +253,10 @@ def user_login_form():
         mac = request.args['mac']
     if not mac:
         mac = 'unknown'
-    return render_template('login_user.html', client_mac=mac)
+        
+    hub = None
+    if request.args and 'hub' in request.args:
+        hub = request.args['hub']
+    if not hub:
+        hub = 'unknown'
+    return render_template('login_user.html', client_mac=mac, hub=hub)

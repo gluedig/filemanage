@@ -6,7 +6,8 @@ Created on Aug 20, 2013
 from fm_services import app
 import fm_services.db.user
 from fm_services.db.user import userDb
-from fm_services.db.sql import Base, Session
+from fm_services.db.sql import Base
+from fm_services.db.sql.sqllite import sql_session
 import datetime
 
 from sqlalchemy import Column, Integer, String, Sequence, DateTime, Table, ForeignKey, or_
@@ -131,7 +132,7 @@ class userDb(fm_services.db.user.userDb):
             return False
 
     def __init__(self):
-        self.session = Session()
+        self.session = sql_session
     
 app.db['users'] = userDb()
     

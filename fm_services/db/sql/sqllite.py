@@ -9,3 +9,4 @@ from sqlalchemy import create_engine
 engine = create_engine('sqlite:///fm_services.db', echo=True)
 Session.configure(bind=engine)
 Base.metadata.bind = engine
+sql_session = Session()

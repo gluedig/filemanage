@@ -17,7 +17,7 @@ $(document).ready(
 
     				$("#banner").text("logging in..");
     				$("#create_user").hide();
-    				setTimeout(function(){window.open("/", "_self")}, 1000)
+    				setTimeout(function(){window.open("/?hub={{hub}}", "_self")}, 1000)
   				}  
 			});  
 			return false;

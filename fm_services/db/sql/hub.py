@@ -6,7 +6,9 @@ Created on Sep 10, 2013
 from fm_services import app
 import fm_services.db.hub
 from fm_services.db.hub import hubDb
-from fm_services.db.sql import Base, Session
+from fm_services.db.sql.user import userDb
+from fm_services.db.sql import Base
+from fm_services.db.sql.sqllite import sql_session
 
 from sqlalchemy import Column, Integer, String, Sequence, Table, ForeignKey
 from sqlalchemy.orm import relationship
@@ -49,14 +51,18 @@ class hubDb(fm_services.db.hub.hubDb):
         return None
 
     def find_hubs(self, user_id):
-        hubs = self.session.query(self.Hub).filter(self.Hub.associations.user == user_id)
-
+        hubs = self.session.query(self.Hub).filter(self.Hub.associations.any(user_id=user_id)).all()
         return hubs
     
     def associate(self, hub_id, user_id, only=False):
         user = app.db['users'].find_by_id(user_id)
         hub = self.get_hub(hub_id)
         if user and hub:
+            if only:
+                hubs = self.find_hubs(user_id)
+                for x in hubs:
+                    x.associations.remove(user)
+
             hub.associations.append(user)
             self.session.commit()
             return True
@@ -64,6 +70,6 @@ class hubDb(fm_services.db.hub.hubDb):
             return False
 
     def __init__(self):
-        self.session = Session()
+        self.session = sql_session
     
 app.db['hubs'] = hubDb()

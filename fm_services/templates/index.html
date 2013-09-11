@@ -9,13 +9,15 @@
 -->
 </head>
 <body>
-<h2>MAC: {{client_mac}}</h2>
+<h2 id='mac'>Client MAC: {{client_mac}}</h2>
+<h2 id='hub'>Wanted Hub: {{hub}}</h2>
 <h2 id="login">Logging in..</h2>
 
 <script>
 function register_mac() {
 	var mac = '{{client_mac}}';
 	if ( mac == 'unknown') {
+		$('#mac').remove();
 		return;
 	}
 	
@@ -27,6 +29,20 @@ function register_mac() {
 	
 };
 
+function associate_hub() {
+	var hub = '{{hub}}';
+	if ( hub == 'unknown') {
+		$('#hub').remove();
+		return;
+	}
+	
+	$.ajax({
+		url: "/hub/{{hub}}/associate?only",
+		context: document.body,
+		dataType: 'json'
+	});
+	
+};
 
 function login() {
 	$.ajax({
@@ -42,12 +58,14 @@ function login() {
 			console.log(resp)
 		
 			$('#login').remove();
-			get_user(resp);			
+			get_user(resp);
+			associate_hub();
+			get_hubs();
 			find_monitor();
 		} else {
 			$('#login').text('User not logged-in');
 			$(this).append('please <a href="/user/create_form">create an account</a>');
-			$(this).append(' or <a href="/user/login_form">login</a>');
+			$(this).append(' or <a href="/user/login_form?hub={{hub}}">login</a>');
 		}
 	});
 };
@@ -73,7 +91,38 @@ function get_user(user_id) {
 	
 };
 
+function get_hubs() {
+	$.ajax({
+		url: "/hub/find",
+		context: document.body,
+		dataType: 'json'
+	})
+	.success(function(data, status, jqxhr) {
+			resp = jqxhr.responseJSON;
+			
+			console.log(resp)
+		
+			if (resp.length) {
+				$(this).append('<h2>Associated hub(s):</h2>')
+				for (var x=0; x < resp.length; x++) {
+					console.log(resp[x])
+					$(this).append(' id: '+resp[x].id)
+					if (resp[x].description != '') {
+						$(this).append(' description: '+resp[x].description)
+					}
+					$(this).append('<br/>')
+				}
+			}
+	});
+	
+};
+
 function find_monitor() {
+	var mac = '{{client_mac}}';
+	if ( mac == 'unknown') {
+		return;
+	}
+	
 	$.ajax({
 		url: "/monitor/find/{{client_mac}}",
 		context: document.body,
