@@ -6,7 +6,6 @@ Created on Sep 10, 2013
 from fm_services import app
 import fm_services.db.hub
 from fm_services.db.hub import hubDb
-from fm_services.db.sql.user import userDb
 from fm_services.db.sql import Base
 from fm_services.db.sql.sqllite import sql_session
 
