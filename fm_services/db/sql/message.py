@@ -50,7 +50,7 @@ class messageDb(fm_services.db.message.messageDb):
         if not msg:
             return False
         else:
-            self.session.remove(msg)
+            self.session.delete(msg)
             self.session.commit()
             return True
         

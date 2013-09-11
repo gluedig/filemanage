@@ -11,10 +11,10 @@ class messageDb():
 
     class Message(json.JSONEncoder):
         def json(self):
-            return {'id':self.msg_id,
+            return {'msg_id':self.msg_id,
                     'text':self.text,
-                    'user':self.user,
-                    'hub':self.hub,
+                    'user_id':self.user,
+                    'hub_id':self.hub,
                     'posted':self.posted.isoformat(sep=' '),
                     }
         def __str__(self):

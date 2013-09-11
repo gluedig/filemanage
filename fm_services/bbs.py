@@ -48,7 +48,7 @@ class Bbs:
         if not msg:
             return make_response('Message not found', 404)
         
-        if not int(msg.user) == int(session['user_id']):
+        if int(msg.user) != int(session['user_id']):
             return make_response('Cannot modify other user', 403)
         
         if self.db.remove(msg_id):
