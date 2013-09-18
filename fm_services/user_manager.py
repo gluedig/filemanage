@@ -4,7 +4,7 @@ Created on Jul 31, 2013
 @author: developer
 '''
 from fm_services import app
-from fm_services.decorators import xsite_enabled, user_loggedin
+from fm_services.decorators import xsite_enabled, user_loggedin, post_data
 from flask import session, request, make_response, render_template
 import hashlib
 import json
@@ -35,15 +35,12 @@ class UserManager:
             resp.mimetype = 'application/json'
             return resp
     
+    @post_data('email', 'password')
     def login_password(self, session, request):
-        if 'email' not in request.form \
-        or 'password' not in request.form:
-            return make_response("Not enough form params", 400)
-        
-        email = request.form['email']
-        password = request.form['password']
+        email = request.parsed_data['email']
+        password = request.parsed_data['password']
         if email == '':
-            return make_response('Wrong form data', 400)
+            return make_response('Wrong email data', 400)
         user = self.db.find_by_name(email)
         if user:
             if user.check_password(password):
@@ -67,27 +64,11 @@ class UserManager:
             return self._login(session, user)
         else:
             return make_response("User creation failed", 400)
-        
+
+    @post_data('email', 'password')
     def create_user(self, session, request):
-        if 'Content-Type' in request.headers \
-        and request.headers['Content-Type'].startswith('application/json'):
-            new_data = request.get_json(silent=True)
-            if not new_data:
-                return make_response('Cannot parse user data JSON', 400)
-            if 'email' not in new_data \
-            or 'password' not in new_data:
-                    return make_response("Not enough json params", 400)
-
-            email = new_data['email']
-            password = new_data['password']
-        else:
-            if 'email' not in request.form \
-            or 'password' not in request.form:
-                    return make_response("Not enough form params", 400)
-
-            email = request.form['email']
-            password = request.form['password']
-
+        email = request.parsed_data['email']
+        password = request.parsed_data['password']
         email_hash = hashlib.md5(email.strip().lower()).hexdigest()
 
         if email == '':
