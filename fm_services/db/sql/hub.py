@@ -5,7 +5,8 @@ Created on Sep 10, 2013
 '''
 from fm_services import app
 import fm_services.db.hub
-from fm_services.db.hub import hubDb
+#from fm_services.db.hub import hubDb
+from fm_services.db.sql.user import userDb
 from fm_services.db.sql import Base
 from fm_services.db.sql.sqllite import sql_session
 
@@ -15,8 +16,8 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 
 associations_table = Table('hub_associations', Base.metadata,
-                Column('user', Integer, ForeignKey('users.user_id'), primary_key=True),
-                Column('hub', Integer, ForeignKey('hubs.hub_id'), primary_key=True)
+                Column('user', Integer, ForeignKey('users.user_id'), primary_key=True, nullable=False),
+                Column('hub', Integer, ForeignKey('hubs.hub_id'), primary_key=True, nullable=False)
                 )
 
 class hubDb(fm_services.db.hub.hubDb):
@@ -67,6 +68,18 @@ class hubDb(fm_services.db.hub.hubDb):
             return True
         else:
             return False
+        
+    def get_users(self, hub_id):
+        try:
+            users = self.session.query(associations_table, userDb.User)\
+                .filter_by(hub=hub_id)\
+                .join(userDb.User)\
+                .all()
+            return [user for _, _, user in users]
+        except NoResultFound:
+            return None
+        
+        return None
 
     def __init__(self):
         self.session = sql_session

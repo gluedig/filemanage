@@ -11,7 +11,7 @@ class messageDb():
 
     class Message(json.JSONEncoder):
         def json(self):
-            return {'msg_id':self.msg_id,
+            return {'id':self.msg_id,
                     'text':self.text,
                     'user_id':self.user,
                     'hub_id':self.hub,

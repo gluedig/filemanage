@@ -36,6 +36,15 @@ class HubManager:
             return resp
         else:
             return make_response("Hub not found", 404)
+    
+    def get_users(self, hub_id):
+        users = self.db.get_users(hub_id)
+        if users:
+            resp = make_response(json.dumps([user.json() for user in users]), 200)
+            resp.mimetype = 'application/json'
+            return resp
+        else:
+            return make_response("No users not found", 404)
         
     @user_loggedin
     def find(self, session):
@@ -70,21 +79,26 @@ this_service = app.services['hub_manager']
 #===============================================================================
 # client i/f
 #===============================================================================
-@app.route('/hub/<hub_id>')
+@app.route('/bbs/hub', methods=["POST"])
+def hub_create():
+    return this_service.create(request)
+
+@app.route('/bbs/hub/<hub_id>')
 @xsite_enabled
 def hub_get(hub_id):
     return this_service.get(hub_id)
-
-@app.route('/hub', methods=["POST"])
-def hub_create():
-    return this_service.create(request)
         
-@app.route('/hub/find')
+@app.route('/bbs/hub/find')
 @xsite_enabled
 def hub_find():
     return this_service.find(session)
 
-@app.route('/hub/<hub_id>/associate')
+@app.route('/bbs/hub/<hub_id>/associate')
 @xsite_enabled
 def hub_associate(hub_id):
     return this_service.associate(hub_id, session, request)
+
+@app.route('/bbs/hub/<hub_id>/users')
+@xsite_enabled
+def hub_users(hub_id):
+    return this_service.get_users(hub_id)

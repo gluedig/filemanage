@@ -142,7 +142,7 @@ this_service = app.services['bbs'] = Bbs(app)
 #===============================================================================
 # client i/f
 #===============================================================================
-@app.route('/bbs/<msg_id>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/bbs/message/<msg_id>', methods=['GET', 'PUT', 'DELETE'])
 @xsite_enabled
 def msg_ops(msg_id):
     if request.method == "GET":
@@ -157,7 +157,7 @@ def msg_ops(msg_id):
 def msg_user_find():
     return this_service.find_user_msg(session, request)
 
-@app.route('/bbs/hub/<hub_id>', methods=['GET', 'POST'])
+@app.route('/bbs/hub/<hub_id>/messages', methods=['GET', 'POST'])
 @xsite_enabled
 def msg_hub_ops(hub_id):
     if request.method == "GET":
