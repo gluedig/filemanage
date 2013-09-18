@@ -10,14 +10,14 @@ from fm_services.db.sql import Base
 from fm_services.db.sql.sqllite import sql_session
 import datetime
 
-from sqlalchemy import Column, Integer, String, Sequence, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, Sequence, ForeignKey, DateTime, Text
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 class messageDb(fm_services.db.message.messageDb):
     class Message(Base, fm_services.db.message.messageDb.Message):
         __tablename__ = 'messages'
         msg_id = Column(Integer, Sequence('msg_id_seq'), primary_key=True)
-        text = Column(String(500))
+        text = Column(Text())
         posted = Column(DateTime())
         user = Column(Integer, ForeignKey('users.user_id'))
         hub = Column(Integer, ForeignKey('hubs.hub_id'))

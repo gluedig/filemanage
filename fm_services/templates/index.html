@@ -37,7 +37,7 @@ function associate_hub() {
 	}
 	
 	$.ajax({
-		url: "/hub/{{hub}}/associate?only",
+		url: "/bbs/hub/{{hub}}/associate?only",
 		context: document.body,
 		dataType: 'json'
 	});
@@ -93,7 +93,7 @@ function get_user(user_id) {
 
 function get_hubs() {
 	$.ajax({
-		url: "/hub/find",
+		url: "/bbs/hub/find",
 		context: document.body,
 		dataType: 'json'
 	})
