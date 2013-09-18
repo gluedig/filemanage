@@ -16,7 +16,7 @@ def xsite_enabled(f):
         if isinstance(resp, Response):
             resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
             resp.headers['Access-Control-Allow-Origin'] = '*'
-            resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With'
+            resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With, Content-Type'
         return resp
     return decorated_function
 
