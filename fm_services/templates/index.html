@@ -77,7 +77,7 @@ function get_user(user_id) {
 		dataType: 'json'
 	})
 	.success(function(data, status, jqxhr) {
-			resp = jqxhr.responseJSON[0];
+			resp = jqxhr.responseJSON;
 			console.log(resp)
 		
 			var email = resp.email;
