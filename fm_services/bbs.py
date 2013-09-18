@@ -108,11 +108,7 @@ class Bbs:
                 resp = make_response(json.dumps([msgs]), 200)
                 resp.mimetype = 'application/json'
             else:
-                msgss = []
-                for msg in msgs:
-                    msgss.append(msg.json())
-                    
-                resp = make_response(json.dumps(msgss), 200)
+                resp = make_response(json.dumps([msg.json() for msg in msgs]), 200)
                 resp.mimetype = 'application/json'
         else:
             resp = make_response(json.dumps([]), 200)
@@ -129,7 +125,7 @@ class Bbs:
         
         msg = self.db.post(user_id, hub_id, text)
         if msg:
-            resp = make_response(json.dumps([msg.json()]), 200)
+            resp = make_response(json.dumps(msg.json()), 200)
             resp.mimetype = 'application/json'
             
         else:

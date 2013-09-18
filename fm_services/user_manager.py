@@ -18,7 +18,7 @@ class UserManager:
     def _login(self, session, user):
         session['user_id'] = user.user_id
         self.db.login(user.user_id)
-        resp = make_response(json.dumps([user.json()]), 200)
+        resp = make_response(json.dumps(user.json()), 200)
         resp.mimetype = 'application/json'
         self.app.signals['user-login'].send(self, id=user.user_id)
         return resp
@@ -85,7 +85,7 @@ class UserManager:
     def get_user(self, user_id):
         user = self.db.find_by_id(user_id)
         if user:
-            resp = make_response(json.dumps([user.json()]), 200)
+            resp = make_response(json.dumps(user.json()), 200)
             resp.mimetype = 'application/json'
             return resp
         else:
@@ -118,12 +118,7 @@ class UserManager:
     def get_contacts(self, session):
         user_id = int(session['user_id'])
         contacts = self.db.get_contacts(user_id)
-        
-        cont = []
-        for contact in contacts:
-            cont.append(contact.json())
-            
-        resp = make_response(json.dumps(cont), 200)
+        resp = make_response(json.dumps([contact.json() for contact in contacts]), 200)
         resp.mimetype = 'application/json'
         return resp 
 

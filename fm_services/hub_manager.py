@@ -22,7 +22,7 @@ class HubManager:
         hub = self.db.create_hub(description)
 
         if hub:
-            resp = make_response(json.dumps([hub.json()]), 200)
+            resp = make_response(json.dumps(hub.json()), 200)
             resp.mimetype = 'application/json'
             return resp
         else:
@@ -31,7 +31,7 @@ class HubManager:
     def get(self, hub_id):
         hub = self.db.get_hub(hub_id)
         if hub:
-            resp = make_response(json.dumps([hub.json()]), 200)
+            resp = make_response(json.dumps(hub.json()), 200)
             resp.mimetype = 'application/json'
             return resp
         else:
@@ -50,12 +50,7 @@ class HubManager:
     def find(self, session):
         user_id = int(session['user_id'])
         hubs = self.db.find_hubs(user_id)
-        
-        hubb = []
-        for hub in hubs:
-            hubb.append(hub.json())
-            
-        resp = make_response(json.dumps(hubb), 200)
+        resp = make_response(json.dumps([hub.json() for hub in hubs]), 200)
         resp.mimetype = 'application/json'
         return resp
     
