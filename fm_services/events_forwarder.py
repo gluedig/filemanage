@@ -21,7 +21,7 @@ class EventUpdates():
         def _send(self, op, **kwargs):
             data = {'msgtype': op, 'n': self.n}
             data.update(**kwargs)
-            app.logger.debug(data)
+            #app.logger.debug(data)
             self.n += 1
             self.zmq_socket.send_json(data)
 
@@ -30,12 +30,11 @@ class EventUpdates():
         self.zmq_ctx = zmq.Context.instance()
         self.zmq_socket = self.zmq_ctx.socket(zmq.PUB)
         self.zmq_socket.bind(zmq_internal_endpoint)
-        self.app.logger.debug("Bound to zmq socket: "+zmq_internal_endpoint)
         self.forwarders = {}
 
         for signal in self.app.signals.values():
             self.forwarders[signal.name] = self.EventFwrdr(signal, self.zmq_socket)
-            signal.connect(self.forwarders[signal.name].forward, self.app)
+            signal.connect(self.forwarders[signal.name].forward)
 
 
 app.services['events_forwarder'] = EventUpdates(app)

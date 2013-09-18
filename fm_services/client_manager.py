@@ -15,7 +15,7 @@ class ClientManager:
     def register(self, mac, session):
         session['mac'] = mac
         if self.db.register(mac):
-            self.app.signals['client-register'].send(self.app, mac=mac)
+            self.app.signals['client-register'].send(self, mac=mac)
             return ('OK', 200)
         else:
             return ('Client registration failed', 500)
@@ -24,7 +24,7 @@ class ClientManager:
         if 'mac' in session:
             mac = session.pop('mac')
             if self.db.unregister(mac):
-                self.app.signals['client-unregister'].send(self.app, mac=mac)
+                self.app.signals['client-unregister'].send(self, mac=mac)
             else:
                 self.app.logger.debug(str.format("Client MAC: {0} found in session but not in db\n", mac))
             return ('OK', 200)

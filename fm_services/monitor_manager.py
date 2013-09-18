@@ -54,14 +54,14 @@ class MonitorManager:
 
     def _proximity_enter(self, monitor,  mac, rssi):
         monitor.clients.add(mac)
-        self.app.signals['proximity-entered'].send(self.app, mon_id=monitor.id, mac=mac, rssi=rssi)
+        self.app.signals['proximity-entered'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def _proximity_leave(self, monitor, mac, rssi):
         monitor.clients.remove(mac)
-        self.app.signals['proximity-left'].send(self.app, mon_id=monitor.id, mac=mac, rssi=rssi)
+        self.app.signals['proximity-left'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def _proximity_change(self, monitor, mac, rssi):
-        self.app.signals['proximity-change'].send(self.app, mon_id=monitor.id, mac=mac, rssi=rssi)
+        self.app.signals['proximity-change'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def client_event(self, mon_id, request):
         if not self.is_registered(mon_id):
