@@ -5,7 +5,7 @@ Created on Sep 11, 2013
 '''
 from fm_services import app
 from flask import session, request, make_response
-from fm_services.decorators import xsite_enabled, user_loggedin
+from fm_services.decorators import xsite_enabled, user_loggedin, post_data
 import json
 
 class Bbs:
@@ -120,11 +120,10 @@ class Bbs:
         
         return resp
     
-    @user_loggedin  
+    @user_loggedin
+    @post_data('text')
     def post_msg(self, hub_id, session, request):
-        if 'text' not in request.form:
-            return make_response("Not enough form params", 400)
-        text = request.form['text']
+        text = request.parsed_data['text']
         user_id = int(session['user_id'])
         hub_id = int(hub_id)
         
