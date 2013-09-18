@@ -69,16 +69,29 @@ class UserManager:
             return make_response("User creation failed", 400)
         
     def create_user(self, session, request):
-        if 'email' not in request.form \
-        or 'password' not in request.form:
+        if 'Content-Type' in request.headers \
+        and request.headers['Content-Type'].startswith('application/json'):
+            new_data = request.get_json(silent=True)
+            if not new_data:
+                return make_response('Cannot parse user data JSON', 400)
+            if 'email' not in new_data \
+            or 'password' not in new_data:
+                    return make_response("Not enough json params", 400)
+
+            email = new_data['email']
+            password = new_data['password']
+        else:
+            if 'email' not in request.form \
+            or 'password' not in request.form:
                     return make_response("Not enough form params", 400)
-        
-        email = request.form['email']
-        password = request.form['password']
+
+            email = request.form['email']
+            password = request.form['password']
+
         email_hash = hashlib.md5(email.strip().lower()).hexdigest()
 
         if email == '':
-            return make_response('Wrong form data', 400)
+            return make_response('Wrong email data', 400)
 
         img_url = str.format("http://www.gravatar.com/avatar/{0}?d=mm", email_hash)
         user = self.db.add(email, password, img_url)
