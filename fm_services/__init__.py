@@ -31,10 +31,10 @@ Base.metadata.create_all()
 
 import monitor_manager
 import client_manager
-#import event_manager
 import user_manager
 import hub_manager
 import bbs
+import events_forwarder
 
 @app.route('/')
 def root():

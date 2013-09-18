@@ -20,6 +20,7 @@ class UserManager:
         self.db.login(user.user_id)
         resp = make_response(json.dumps([user.json()]), 200)
         resp.mimetype = 'application/json'
+        self.app.signals['user-login'].send(self.app, id=user.user_id)
         return resp
     
     def check_login(self, session):
@@ -54,7 +55,9 @@ class UserManager:
     
     def logout(self, session):
         if 'user_id' in session:
+            user_id = session['user_id']
             session.pop('user_id')
+            self.app.signals['user-logout'].send(self.app, id=user_id)
         return make_response('OK', 200)
 
     def create_user_random(self, session):
