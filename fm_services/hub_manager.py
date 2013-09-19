@@ -63,6 +63,7 @@ class HubManager:
             only = False
         
         if self.db.associate(hub_id, user_id, only=only):
+            self.app.signals['hub-associate'].send(self, user_id=user_id, hub_id=hub_id)
             return make_response('OK', 200)
         else:
             return make_response('NOK', 500)

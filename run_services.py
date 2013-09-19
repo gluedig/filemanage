@@ -4,6 +4,7 @@ Created on Jun 19, 2013
 @author: developer
 '''
 from fm_services import app
+from fm_services.events_sockjs import HubEventsGetHandler
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado.web import FallbackHandler, RequestHandler, Application
@@ -17,10 +18,11 @@ class MainHandler(RequestHandler):
 
 tr = WSGIContainer(app)
 
-application = Application([
-(r"/tornado/.*", MainHandler),
-(r".*", FallbackHandler, dict(fallback=tr)),
-])
+handlers = [
+            (r"/events/hub/(.+)", HubEventsGetHandler),
+            (r".*", FallbackHandler, dict(fallback=tr)),
+        ]
+application = Application(handlers, debug=True)
 
 if __name__ == "__main__":
     parse_command_line(sys.argv)

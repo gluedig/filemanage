@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+<script src="http://cdn.sockjs.org/sockjs-0.3.min.js"></script>
 <!-- 
 <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/css/bootstrap.min.css">
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0-rc1/js/bootstrap.min.js"></script>
@@ -111,11 +112,25 @@ function get_hubs() {
 						$(this).append(' description: '+resp[x].description)
 					}
 					$(this).append('<br/>')
+					register_for_hub_events(resp[x].id)
 				}
 			}
 	});
 	
 };
+
+function register_for_hub_events(hub) {
+	var sock = new SockJS('/events/hub/'+hub);
+	sock.onopen = function() {
+	       console.log('open');
+	};
+	sock.onmessage = function(e) {
+	       console.log('message', e.data);
+	};
+	sock.onclose = function() {
+	       console.log('close');
+	};
+}
 
 function find_monitor() {
 	var mac = '{{client_mac}}';

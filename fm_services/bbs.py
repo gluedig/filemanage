@@ -127,7 +127,7 @@ class Bbs:
         if msg:
             resp = make_response(json.dumps(msg.json()), 200)
             resp.mimetype = 'application/json'
-            
+            self.app.signals['hub-message'].send(self, user_id=user_id, hub_id=hub_id, msg_id=msg.msg_id)
         else:
             resp = make_response('NOK', 500)
         

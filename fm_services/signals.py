@@ -15,3 +15,10 @@ app.signals['proximity-change'] = signals_namespace.signal('proximity-change')
 
 app.signals['user-login'] = signals_namespace.signal('user-login')
 app.signals['user-logout'] = signals_namespace.signal('user-logout')
+
+app.signals['hub-associate'] = signals_namespace.signal('hub-associate')
+app.signals['hub-message'] = signals_namespace.signal('hub-message')
+
+#signals related to hub
+hub_signals = [app.signals['hub-associate'],
+               app.signals['hub-message']]
