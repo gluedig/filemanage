@@ -6,7 +6,6 @@ Created on Aug 21, 2013
 from functools import wraps
 from flask import Response, make_response, Request
 from flask.sessions import SecureCookieSession
-from fm_services import app
 from werkzeug.local import LocalProxy
 
 def xsite_enabled(f):
