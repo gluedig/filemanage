@@ -34,7 +34,7 @@ import client_manager
 import user_manager
 import hub_manager
 import bbs
-import events_forwarder
+#import events_forwarder
 
 @app.route('/')
 def root():
@@ -51,4 +51,4 @@ def root():
         hub = request.args['hub']
     if not hub:
         hub = 'unknown'
-    return render_template('index.html', client_mac=mac, hub=hub, sockjs_url = app.config['SOCKJS_URL'])
+    return render_template('index.html', client_mac=mac, hub=hub)
