@@ -10,6 +10,9 @@ from fm_services import app
 from werkzeug.local import LocalProxy
 
 def xsite_enabled(f):
+    '''
+    enable cross site requests
+    '''
     @wraps(f)
     def decorated_function(*args, **kwargs):
         resp = f(*args, **kwargs)
@@ -21,6 +24,9 @@ def xsite_enabled(f):
     return decorated_function
 
 def insession(variable):
+    '''
+    check if variable is present in session data
+    '''
     def real_decorator(function):
         def wrapper(*args, **kwargs):
             found = False
@@ -41,10 +47,16 @@ def insession(variable):
     return real_decorator
 
 def user_loggedin(f):
+    '''
+    check if user is logged in by looking for 'user_id' in session data
+    '''
     return insession('user_id')(f)
 
 
 def post_data(*data):
+    '''
+    handle posted data either from HTML form or JSON object
+    '''
     def real_decorator(function):
         def wrapper(*args, **kwargs):
             request = None
