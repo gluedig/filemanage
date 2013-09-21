@@ -13,7 +13,7 @@ $(document).ready(
   				url: "/user/create",  
   				data: dataString,
   				success: function(data, status, jqxhr) {
-  					resp = jqxhr.responseJSON[0];
+  					resp = jqxhr.responseJSON;
 
     				$("#banner").text("User id: "+resp.id+" created, redirecting to login..");
     				$("#create_user").hide();
