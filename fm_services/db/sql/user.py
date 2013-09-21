@@ -13,6 +13,7 @@ import datetime
 from sqlalchemy import Column, Integer, String, Sequence, DateTime, Table, ForeignKey, or_
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 contacts_table = Table('contacts', Base.metadata,
                 Column('owner', Integer, ForeignKey('users.user_id'), primary_key=True),
@@ -59,9 +60,15 @@ class userDb(fm_services.db.user.userDb):
     def add(self, email, passwd, image):
         new_user = self.User(email, image)
         new_user.set_password(passwd)
-        self.session.add(new_user)
-        self.session.commit()
-        return new_user
+        try:
+            self.session.add(new_user)
+            self.session.commit()
+            return new_user
+        except IntegrityError:
+            self.session.rollback()
+            return None
+
+        return None
         
     def find_by_id(self, user_id):
         try:
