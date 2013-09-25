@@ -16,7 +16,7 @@ class UserManager:
         self.db = app.db['users']
     
     def _login(self, session, user):
-        session['user_id'] = user.user_id
+        session.login(user.user_id)
         self.db.login(user.user_id)
         resp = make_response(json.dumps(user.json()), 200)
         resp.mimetype = 'application/json'
@@ -24,13 +24,12 @@ class UserManager:
         return resp
     
     def check_login(self, session):
-        if 'user_id' in session and self.db.find_by_id(session['user_id']):
-            resp = make_response(json.dumps([session['user_id']], 200))
+        if session.is_logged_in() and self.db.find_by_id(session.get_user_id()):
+            resp = make_response(json.dumps([session.get_user_id()], 200))
             resp.mimetype = 'application/json'
             return resp
         else:
-            if 'user_id' in session:
-                session.pop('user_id')
+            session.logout()
             resp = make_response(json.dumps([], 200))
             resp.mimetype = 'application/json'
             return resp
@@ -51,9 +50,9 @@ class UserManager:
             return make_response("User not found", 404)
     
     def logout(self, session):
-        if 'user_id' in session:
-            user_id = session['user_id']
-            session.pop('user_id')
+        if session.is_logged_in():
+            user_id = session.get_user_id()
+            session.logout()
             self.app.signals['user-logout'].send(self, id=user_id)
         return make_response('OK', 200)
 
@@ -93,7 +92,7 @@ class UserManager:
 
     @user_loggedin
     def modify_user(self, user_id, session, request):
-        if not int(user_id) == int(session['user_id']):
+        if not int(user_id) == int(session.get_user_id()):
             return make_response('Cannot modify other user', 403)
 
         user = self.db.find_by_id(user_id)
@@ -116,7 +115,7 @@ class UserManager:
 
     @user_loggedin
     def get_contacts(self, session):
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         contacts = self.db.get_contacts(user_id)
         resp = make_response(json.dumps([contact.json() for contact in contacts]), 200)
         resp.mimetype = 'application/json'
@@ -127,7 +126,7 @@ class UserManager:
         if 'id' not in request.args:
                     return ("Not enough form params", 400)
                 
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         contact_id = int(request.args['id'])
         if self.db.add_contact(user_id, contact_id):
             resp = make_response('OK', 200)
@@ -140,7 +139,7 @@ class UserManager:
         if 'id' not in request.args:
                     return ("Not enough form params", 400)
                 
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         contact_id = int(request.args['id'])
         if self.db.remove_contact(user_id, contact_id):
             resp = make_response('OK', 200)

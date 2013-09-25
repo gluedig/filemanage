@@ -48,7 +48,7 @@ class HubManager:
         
     @user_loggedin
     def find(self, session):
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         hubs = self.db.find_hubs(user_id)
         resp = make_response(json.dumps([hub.json() for hub in hubs]), 200)
         resp.mimetype = 'application/json'
@@ -56,7 +56,7 @@ class HubManager:
     
     @user_loggedin
     def associate(self, hub_id, session, request):
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         if 'only' in request.args:
             only = True
         else:

@@ -5,8 +5,9 @@ Created on Aug 21, 2013
 '''
 from functools import wraps
 from flask import Response, make_response, Request
-from flask.sessions import SecureCookieSession
+#from flask.sessions import SecureCookieSession
 from werkzeug.local import LocalProxy
+from fm_services.session_interface import SensusSecureCookieSession
 
 def xsite_enabled(f):
     '''
@@ -22,35 +23,48 @@ def xsite_enabled(f):
         return resp
     return decorated_function
 
-def insession(variable):
-    '''
-    check if variable is present in session data
-    '''
-    def real_decorator(function):
-        def wrapper(*args, **kwargs):
-            found = False
-            for arg in args:
-                if isinstance(arg, LocalProxy):
-                    arg = arg._get_current_object()
-
-                if isinstance(arg, SecureCookieSession):
-                    if variable in arg:
-                        found = True
-
-            if found:
-                resp = function(*args, **kwargs)
-                return resp
-            else:
-                return make_response(str.format('No {0} in session', variable), 400)
-        return wrapper
-    return real_decorator
+#def insession(variable):
+#    '''
+#    check if variable is present in session data
+#    '''
+#    def real_decorator(function):
+#        def wrapper(*args, **kwargs):
+#            found = False
+#            for arg in args:
+#                if isinstance(arg, LocalProxy):
+#                    arg = arg._get_current_object()
+#
+#                if isinstance(arg, SecureCookieSession):
+#                    if variable in arg:
+#                        found = True
+#
+#            if found:
+#                resp = function(*args, **kwargs)
+#                return resp
+#            else:
+#                return make_response(str.format('No {0} in session', variable), 400)
+#        return wrapper
+#    return real_decorator
 
 def user_loggedin(f):
     '''
-    check if user is logged in by looking for 'user_id' in session data
+    check if user is logged in by looking at session data
     '''
-    return insession('user_id')(f)
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        logged_in = False
+        for arg in args:
+            if isinstance(arg, LocalProxy):
+                arg = arg._get_current_object()
+            if isinstance(arg, SensusSecureCookieSession):
+                logged_in = arg.is_logged_in()
 
+        if logged_in:
+            resp = f(*args, **kwargs)
+            return resp
+        else:
+            return make_response('User not logged in', 400)
+    return wrapper
 
 def post_data(*data):
     '''

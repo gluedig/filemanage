@@ -29,7 +29,7 @@ class Bbs:
         if not msg:
             return make_response('Message not found', 404)
 
-        if not int(msg.user) == int(session['user_id']):
+        if not int(msg.user) == int(session.get_user_id()):
             return make_response('Cannot modify other user', 403)
 
         new_data = request.get_json(silent=True)
@@ -48,7 +48,7 @@ class Bbs:
         if not msg:
             return make_response('Message not found', 404)
         
-        if int(msg.user) != int(session['user_id']):
+        if int(msg.user) != int(session.get_user_id()):
             return make_response('Cannot modify other user', 403)
         
         if self.db.remove(msg_id):
@@ -59,7 +59,7 @@ class Bbs:
         
     @user_loggedin
     def find_user_msg(self, session, request):
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         count = False
         start = 0
         end = None
@@ -116,7 +116,7 @@ class Bbs:
     @post_data('text')
     def post_msg(self, hub_id, session, request):
         text = request.parsed_data['text']
-        user_id = int(session['user_id'])
+        user_id = int(session.get_user_id())
         hub_id = int(hub_id)
         
         msg = self.db.post(user_id, hub_id, text)

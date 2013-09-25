@@ -8,6 +8,9 @@ from flask import Flask, render_template, request, session
 app = Flask(__name__, static_url_path='')
 app.config.from_object('fm_services.default_settings')
 
+from session_interface import SensusSessionInterface
+app.session_interface = SensusSessionInterface()
+
 app.signals = {}
 app.services = {}
 app.db = {}
