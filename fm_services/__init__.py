@@ -27,13 +27,11 @@ import db.sql.sqllite
 import db.sql.user
 import db.sql.hub
 import db.sql.message
-import db.memory.client
 
 from db.sql import Base
 Base.metadata.create_all()
 
 import monitor_manager
-import client_manager
 import user_manager
 import hub_manager
 import bbs
