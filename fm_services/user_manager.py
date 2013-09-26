@@ -18,9 +18,7 @@ class UserManager:
     def _login(self, session, user):
         session.login(user.user_id)
         self.db.login(user.user_id)
-        if session.has_device():
-            self.db.associate_device(user.user_id, session.get_device())
-
+        self._maybe_associate_device(session)
         resp = make_response(json.dumps(user.json()), 200)
         resp.mimetype = 'application/json'
         self.app.signals['user-login'].send(self, id=user.user_id)
@@ -28,8 +26,7 @@ class UserManager:
     
     def check_login(self, session):
         if session.is_logged_in() and self.db.find_by_id(session.get_user_id()):
-            if session.has_device():
-                self.db.associate_device(session.get_user_id(), session.get_device())
+            self._maybe_associate_device(session)
             resp = make_response(json.dumps([session.get_user_id()], 200))
             resp.mimetype = 'application/json'
             return resp
@@ -39,6 +36,11 @@ class UserManager:
             resp.mimetype = 'application/json'
             return resp
     
+    def _maybe_associate_device(self, session):
+        if session.has_device() and session.is_logged_in() and\
+        self.db.associate_device(session.get_user_id(), session.get_device()):
+            self.app.signals['user-device-associate'].send(self, id=session.get_user_id(), mac=session.get_device())
+
     @post_data('email', 'password')
     def login_password(self, session, request):
         email = request.parsed_data['email']

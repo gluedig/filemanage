@@ -14,6 +14,7 @@ app.signals['proximity-left'] = signals_namespace.signal('proximity-left')
 app.signals['proximity-change'] = signals_namespace.signal('proximity-change')
 
 app.signals['user-login'] = signals_namespace.signal('user-login')
+app.signals['user-device-associate'] = signals_namespace.signal('user-device-associate')
 app.signals['user-logout'] = signals_namespace.signal('user-logout')
 
 app.signals['hub-associate'] = signals_namespace.signal('hub-associate')

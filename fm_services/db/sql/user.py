@@ -154,7 +154,7 @@ class userDb(fm_services.db.user.userDb):
         app.logger.debug(str.format('Associate MAC: <{0}> with user: {1}', mac, user_id))
         user = self.find_by_id(user_id)
         device = self._find_device_by_mac(mac)
-        if device and device.user_id != user_id:
+        if device and user and device.user_id != user_id:
             app.logger.debug("MAC <%s> associated with user %d, will change to %d", mac, device.user_id, user_id)
             device.user_id = user_id
             self.session.commit()
@@ -164,12 +164,16 @@ class userDb(fm_services.db.user.userDb):
 
             if mac not in [dev.mac for dev in user.devices]:
                 app.logger.debug("Adding MAC: <%s> association to user: %d", mac, user_id)
-                user.devices.append(self.Device(mac))
-                app.logger.debug(str.format("User: {0} associated MACs: {1}", user_id, [dev.mac for dev in user.devices]))
-                self.session.commit()
-            return True
-        else:
-            return False
+                try:
+                    user.devices.append(self.Device(mac))
+                    app.logger.debug(str.format("User: {0} associated MACs: {1}", user_id, [dev.mac for dev in user.devices]))
+                    self.session.commit()
+                    return True
+                except IntegrityError as err:
+                    app.logger.error("Error adding association MAC: %s user %d error: %s", mac, user_id, err)
+                    self.session.rollback()
+
+        return False
 
     def _find_device_by_mac(self, mac):
         try:
