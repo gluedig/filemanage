@@ -19,6 +19,19 @@ class SensusSecureCookieSession(SecureCookieSession):
         if self.is_logged_in():
             self.pop('user_id')
 
+    def has_device(self):
+        return 'mac' in self
+
+    def get_device(self):
+        return self['mac']
+
+    def set_device(self, mac):
+        self['mac'] = mac
+
+    def uset_device(self):
+        if self.has_device():
+            self.pop('mac')
+
 class SensusSessionInterface(SecureCookieSessionInterface):
     session_class = SensusSecureCookieSession
     

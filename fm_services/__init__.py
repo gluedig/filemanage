@@ -42,8 +42,9 @@ def root():
     mac = None
     if request.args and 'mac' in request.args:
         mac = request.args['mac']
-    if not mac and 'mac' in session:
-        mac = session['mac']
+        session.set_device(mac)
+    if not mac and session.has_device():
+        mac = session.get_device()
     if not mac:
         mac = 'unknown'
     

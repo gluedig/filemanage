@@ -15,21 +15,6 @@
 <h2 id="login">Logging in..</h2>
 
 <script>
-function register_mac() {
-	var mac = '{{client_mac}}';
-	if ( mac == 'unknown') {
-		$('#mac').remove();
-		return;
-	}
-	
-	$.ajax({
-		url: "/client/register/{{client_mac}}",
-		context: document.body,
-		dataType: 'json'
-	});
-	
-};
-
 function associate_hub() {
 	var hub = '{{hub}}';
 	if ( hub == 'unknown') {
@@ -159,7 +144,6 @@ function find_monitor() {
 
 $(document).ready(
 	function(){
-		register_mac();
 		login();	
 	}
 ); 

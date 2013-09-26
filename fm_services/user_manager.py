@@ -18,6 +18,9 @@ class UserManager:
     def _login(self, session, user):
         session.login(user.user_id)
         self.db.login(user.user_id)
+        if session.has_device():
+            self.db.associate_device(user.user_id, session.get_device())
+
         resp = make_response(json.dumps(user.json()), 200)
         resp.mimetype = 'application/json'
         self.app.signals['user-login'].send(self, id=user.user_id)
@@ -25,6 +28,8 @@ class UserManager:
     
     def check_login(self, session):
         if session.is_logged_in() and self.db.find_by_id(session.get_user_id()):
+            if session.has_device():
+                self.db.associate_device(session.get_user_id(), session.get_device())
             resp = make_response(json.dumps([session.get_user_id()], 200))
             resp.mimetype = 'application/json'
             return resp
@@ -53,6 +58,7 @@ class UserManager:
         if session.is_logged_in():
             user_id = session.get_user_id()
             session.logout()
+            self.db.logout(user_id)
             self.app.signals['user-logout'].send(self, id=user_id)
         return make_response('OK', 200)
 

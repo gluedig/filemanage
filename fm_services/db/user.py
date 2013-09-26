@@ -69,5 +69,11 @@ class userDb():
     @abstractmethod
     def login(self, user_id):
         return NotImplemented
-    
-    
+
+    @abstractmethod
+    def logout(self, user_id):
+        return NotImplemented
+
+    @abstractmethod
+    def associate_device(self, user_id, mac):
+        return NotImplemented
