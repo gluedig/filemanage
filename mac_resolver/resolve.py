@@ -3,13 +3,14 @@ Created on Jun 12, 2013
 
 @author: developer
 '''
+import argparse
 from flask import Flask, request, redirect
 app = Flask(__name__)
 
 from subprocess import Popen, PIPE
 import re
 
-SERVICES_URL="http://gluedig.dnsd.info:443/?mac="
+service_url="http://gluedig.dnsd.info:443/?mac="
 
 class MacResolver:
     def __init__(self):
@@ -45,10 +46,15 @@ def mac_route():
     mac =  app.mac_resolve.resolve(ip)
     
     if mac:
-        return redirect(SERVICES_URL+mac)
+        return redirect(service_url+mac)
     else:
-        return ('Not found', 404)
+        return redirect(service_url+'unknown')
 
 if __name__ == '__main__':
-    app.debug = True
-    app.run(host='0.0.0.0', threaded=True, port=5002)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--debug', action='store_true', default=False)
+    parser.add_argument('--url', help='service url: %(default)s', default=service_url)
+    parser.add_argument('--port', help='port to run on: %(default)s', default=5002)
+    args = parser.parse_args()
+
+    app.run(host='0.0.0.0', debug=args.debug, port=args.port)
