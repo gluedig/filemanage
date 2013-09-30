@@ -90,16 +90,16 @@ function get_hubs() {
 		
 			if (resp.length) {
 				$("#hub_not_found").remove();
-				$(this).append('<h2>Associated hub(s):</h2>')
+				$(this).append('<h2>Associated with hub(s):</h2>[')
 				for (var x=0; x < resp.length; x++) {
 					console.log(resp[x])
-					$(this).append(' id: '+resp[x].id)
-					if (resp[x].description != '') {
-						$(this).append(' description: '+resp[x].description)
+					$(this).append(resp[x].id)
+					if (x > 0) {
+						$(this).append(', ')
 					}
-					$(this).append('<br/>')
 					register_for_hub_events(resp[x].id)
 				}
+				$(this).append(']')
 			} else {
 				if ( $("#hub_not_found").length == 0) {
 					$(this).append('<h2 id="hub_not_found">Not associated to any hub.</h2>');
@@ -138,7 +138,7 @@ function find_monitor() {
 		console.log(data)
 		var monitor = data;
 		$("#not_found").remove();
-		$(this).append('<h2>Found you through monitor: '+monitor+'</h2>');
+		$(this).append('<h2>Found MAC through monitor(s):</h2>'+monitor);
 	})
 	.error(function(jqxhr, status, error) {
 		if ( $("#not_found").length == 0) {

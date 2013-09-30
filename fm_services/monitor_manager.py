@@ -72,14 +72,16 @@ class MonitorManager:
         return ret
 
     def _proximity_enter(self, monitor, mac, rssi):
-        monitor.clients.add(mac)
+        if mac not in monitor.clients:
+            monitor.clients.add(mac)
         self.last_rssi[mac] = rssi
         if mac in self.watched_macs:
             app.logger.debug("MAC <%s> entered proximity of monitor %s", mac, monitor.id)
             self.app.signals['proximity-entered'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def _proximity_leave(self, monitor, mac, rssi):
-        monitor.clients.remove(mac)
+        if mac in monitor.clients:
+            monitor.clients.remove(mac)
         self.last_rssi[mac] = rssi
         if mac in self.watched_macs:
             app.logger.debug("MAC <%s> left proximity of monitor %s", mac, monitor.id)
@@ -108,18 +110,16 @@ class MonitorManager:
         event_type = msg_json['event_type']
         rssi = msg_json['rssi']
         if event_type == 0:
-            if not mac in monitor.clients:
-                self._proximity_enter(monitor, mac, rssi)
-                msg = str.format("Monitor {0} registered new MAC <{1}>", mon_id, mac)
-                app.logger.debug(msg)
-                return msg
+            self._proximity_enter(monitor, mac, rssi)
+            msg = str.format("Monitor {0} registered new MAC <{1}>", mon_id, mac)
+            app.logger.debug(msg)
+            return msg
         #client remove
         elif event_type == 1:
-            if mac in monitor.clients:
-                self._proximity_leave(monitor, mac, rssi)
-                msg = str.format("Monitor {0} unregistered MAC <{1}>", mon_id, mac)
-                app.logger.debug(msg)
-                return msg
+            self._proximity_leave(monitor, mac, rssi)
+            msg = str.format("Monitor {0} unregistered MAC <{1}>", mon_id, mac)
+            app.logger.debug(msg)
+            return msg
         #change
         elif event_type == 2:
             if mac in monitor.clients:
@@ -155,11 +155,15 @@ class MonitorManager:
         if not monitors:
             monitors=self.mons_by_id.values()
         
+        mon_ids = []
         for monitor in monitors:
             if mac in monitor.clients:
-                return monitor.id
+                mon_ids.append(monitor.id)
         
-        return None
+        if len(mon_ids):
+            return mon_ids
+        else:
+            return None
 
 
 app.services['monitor_manager'] = MonitorManager(app)
@@ -183,9 +187,9 @@ def mon_event_route(mon_id):
 @app.route('/monitor/find/<mac>')
 def mon_find_route(mac):
     ip = request.remote_addr
-    monitor = this_service.find_client(ip, mac)
-    if monitor:
-        return monitor+'\n'
+    monitors = this_service.find_client(ip, mac)
+    if monitors:
+        return str.format("{0}\n", [ int(mon) for mon in monitors])
     else:
         return ("Not found", 404)    
 
