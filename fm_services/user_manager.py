@@ -37,8 +37,8 @@ class UserManager:
             return resp
     
     def _maybe_associate_device(self, session):
-        if session.has_device() and session.is_logged_in() and\
-        self.db.associate_device(session.get_user_id(), session.get_device()):
+        if session.has_device() and session.is_logged_in():
+            self.db.associate_device(session.get_user_id(), session.get_device())
             self.app.signals['user-device-associate'].send(self, id=session.get_user_id(), mac=session.get_device())
 
     @post_data('email', 'password')
