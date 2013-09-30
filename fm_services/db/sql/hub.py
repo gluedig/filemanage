@@ -68,7 +68,18 @@ class hubDb(fm_services.db.hub.hubDb):
             return True
         else:
             return False
-        
+
+    def unassociate(self, hub_id, user_id):
+        user = app.db['users'].find_by_id(user_id)
+        hub = self.get_hub(hub_id)
+        if user and hub:
+            if user in hub.associations:
+                hub.associations.remove(user)
+                self.session.commit()
+            return True
+        else:
+            return False
+
     def get_users(self, hub_id):
         try:
             users = self.session.query(associations_table, userDb.User)\

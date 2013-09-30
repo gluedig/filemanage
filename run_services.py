@@ -18,7 +18,7 @@ handlers = [
             (r"/events/hub/(.+)", HubEventsGetHandler),
             (r".*", FallbackHandler, dict(fallback=tr)),
         ]
-application = Application(handlers)
+application = Application(handlers, debug=True)
 
 if __name__ == "__main__":
     parse_command_line(sys.argv)

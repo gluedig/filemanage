@@ -38,7 +38,11 @@ class hubDb():
     @abstractmethod
     def associate(self, hub_id, user_id, only=False):
         return NotImplemented
-    
+
+    @abstractmethod
+    def unassociate(self, hub_id, user_id):
+        return NotImplemented
+
     @abstractmethod
     def get_users(self, hub_id):
         return NotImplemented

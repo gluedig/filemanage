@@ -153,7 +153,7 @@ class userDb(fm_services.db.user.userDb):
     def associate_device(self, user_id, mac):
         app.logger.debug(str.format('Associate MAC: <{0}> with user: {1}', mac, user_id))
         user = self.find_by_id(user_id)
-        device = self._find_device_by_mac(mac)
+        device = self.find_device_by_mac(mac)
         if device and user and device.user_id != user_id:
             app.logger.debug("MAC <%s> associated with user %d, will change to %d", mac, device.user_id, user_id)
             device.user_id = user_id
@@ -175,7 +175,7 @@ class userDb(fm_services.db.user.userDb):
 
         return False
 
-    def _find_device_by_mac(self, mac):
+    def find_device_by_mac(self, mac):
         try:
             return self.session.query(self.Device).filter_by(mac=mac).one()
         except MultipleResultsFound:

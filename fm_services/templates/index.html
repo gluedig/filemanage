@@ -89,6 +89,7 @@ function get_hubs() {
 			console.log(resp)
 		
 			if (resp.length) {
+				$("#hub_not_found").remove();
 				$(this).append('<h2>Associated hub(s):</h2>')
 				for (var x=0; x < resp.length; x++) {
 					console.log(resp[x])
@@ -99,6 +100,11 @@ function get_hubs() {
 					$(this).append('<br/>')
 					register_for_hub_events(resp[x].id)
 				}
+			} else {
+				if ( $("#hub_not_found").length == 0) {
+					$(this).append('<h2 id="hub_not_found">Not associated to any hub.</h2>');
+				}
+				setTimeout(function(){get_hubs()}, 10000);
 			}
 	});
 	
@@ -136,7 +142,7 @@ function find_monitor() {
 	})
 	.error(function(jqxhr, status, error) {
 		if ( $("#not_found").length == 0) {
-			$(this).append('<h2 id="not_found">Cannot find you through any monitor, will try again.</h2>');
+			$(this).append('<h2 id="not_found">MAC not found through any monitor.</h2>');
 		}
 		setTimeout(function(){find_monitor()}, 10000);
 	});
