@@ -4,7 +4,7 @@ Created on Sep 11, 2013
 @author: gluedig
 '''
 from fm_services import app
-from flask import session, request, make_response, Config
+from flask import session, request, make_response, Config, redirect
 from fm_services.decorators import xsite_enabled, user_loggedin
 import json
 
@@ -129,7 +129,7 @@ this_service = app.services['hub_manager']
 def hub_create():
     return this_service.create(request)
 
-@app.route('/bbs/hub/<hub_id>')
+@app.route('/bbs/hub/<int:hub_id>')
 @xsite_enabled
 def hub_get(hub_id):
     return this_service.get(hub_id)
@@ -139,17 +139,17 @@ def hub_get(hub_id):
 def hub_find():
     return this_service.find(session)
 
-@app.route('/bbs/hub/<hub_id>/associate')
+@app.route('/bbs/hub/<int:hub_id>/associate')
 @xsite_enabled
 def hub_associate(hub_id):
     return this_service.associate(hub_id, session, request)
 
-@app.route('/bbs/hub/<hub_id>/unassociate')
+@app.route('/bbs/hub/<int:hub_id>/unassociate')
 @xsite_enabled
 def hub_unassociate(hub_id):
     return this_service.unassociate(hub_id, session, request)
 
-@app.route('/bbs/hub/<hub_id>/users')
+@app.route('/bbs/hub/<int:hub_id>/users')
 @xsite_enabled
 def hub_users(hub_id):
     return this_service.get_users(hub_id)

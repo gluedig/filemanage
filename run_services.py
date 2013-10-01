@@ -4,7 +4,7 @@ Created on Jun 19, 2013
 @author: developer
 '''
 from fm_services import app
-from fm_services.events_sockjs import HubEventsGetHandler
+from fm_services.events_sockjs import HubEventsGetHandler, UserEventsGetHandler
 from tornado.wsgi import WSGIContainer
 from tornado.ioloop import IOLoop
 from tornado.web import FallbackHandler, Application
@@ -16,6 +16,7 @@ tr = WSGIContainer(app)
 
 handlers = [
             (r"/events/hub/(.+)", HubEventsGetHandler),
+            (r"/events/user/(.+)", UserEventsGetHandler),
             (r".*", FallbackHandler, dict(fallback=tr)),
         ]
 application = Application(handlers, debug=True)

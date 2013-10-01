@@ -183,7 +183,7 @@ this_service = app.services['user_manager']
 #===============================================================================
 # client i/f
 #===============================================================================
-@app.route('/user/<user_id>', methods=["PUT","GET"])
+@app.route('/user/<int:user_id>', methods=["PUT","GET"])
 @xsite_enabled
 def user_get(user_id):
     if request.method == "GET":

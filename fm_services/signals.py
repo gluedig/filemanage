@@ -26,6 +26,10 @@ hub_signals = [app.signals['hub-associate'],
                app.signals['hub-unassociate'],
                app.signals['hub-message']]
 
+
+user_signals = [app.signals['hub-associate']]
+
+#proximity signals
 proximity_signals = [app.signals['proximity-entered'],
                      app.signals['proximity-left'],
                      app.signals['proximity-change']]

@@ -100,7 +100,7 @@ class MonitorManager:
         monitor = self.mons_by_id[mon_id]
         #self.app.logger.debug(request.get_data(as_text=True))
         try:
-            msg_json = json.loads(request.data)[0]
+            msg_json = json.loads(request.get_data(as_text=True))[0]
         except (ValueError):
             self.app.logger.error("Cannot decode message: "+request.data)
             return ("Cannot decode message", 500)
@@ -132,11 +132,11 @@ class MonitorManager:
                 msg = str.format("Monitor {0} registered new MAC <{1}>", mon_id, mac)
                 app.logger.debug(msg)
                 return msg
-        else:
-            error = str.format("Unknown event: {0}", msg_json['event_type'])
-            self.app.logger.error(error)
-            self.app.logger.debug(msg_json)
-            return (error, 404)
+#        else:
+#            error = str.format("Unknown event: {0}", msg_json['event_type'])
+#            self.app.logger.error(error)
+#            self.app.logger.debug(msg_json)
+#            return (error, 404)
 
         return 'OK'
     

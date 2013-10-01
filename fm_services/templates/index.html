@@ -40,13 +40,13 @@ function login() {
 		if (jqxhr.responseJSON.length) {
 			
 		
-			resp = jqxhr.responseJSON[0];
-			console.log(resp)
+			user_id = jqxhr.responseJSON[0];
+			console.log(user_id)
 		
 			$('#login').remove();
-			get_user(resp);
+			get_user(user_id);
 			associate_hub();
-			get_hubs();
+			get_hubs(user_id);
 			find_monitor();
 		} else {
 			$('#login').text('User not logged-in');
@@ -70,14 +70,10 @@ function get_user(user_id) {
 			var id = resp.id;
 			
 			$(this).append('<h2>Welcome '+email+' (user id: '+id+')</h2>');
-			if (resp.image != "") {
-				$(this).append('<img src='+resp.image+'/>');
-			}
 	});
-	
 };
 
-function get_hubs() {
+function get_hubs(user_id) {
 	$.ajax({
 		url: "/bbs/hub/find",
 		context: document.body,
@@ -97,26 +93,29 @@ function get_hubs() {
 					if (x > 0) {
 						$(this).append(', ')
 					}
-					register_for_hub_events(resp[x].id)
 				}
 				$(this).append(']')
 			} else {
 				if ( $("#hub_not_found").length == 0) {
 					$(this).append('<h2 id="hub_not_found">Not associated to any hub.</h2>');
 				}
-				setTimeout(function(){get_hubs()}, 10000);
+				register_for_user_events(user_id)
 			}
 	});
 	
 };
 
-function register_for_hub_events(hub) {
-	var sock = new SockJS('/events/hub/'+hub);
+function register_for_user_events(user) {
+	var sock = new SockJS('/events/user/'+user);
 	sock.onopen = function() {
 	       console.log('open');
 	};
 	sock.onmessage = function(e) {
 	       console.log('message', e.data);
+	       if (e.data.msgtype == 'hub-associate') {
+				get_hubs(user);
+				sock.close();
+	       }
 	};
 	sock.onclose = function() {
 	       console.log('close');
