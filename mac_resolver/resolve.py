@@ -53,8 +53,9 @@ def mac_route():
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--debug', action='store_true', default=False)
-    parser.add_argument('--url', help='service url: %(default)s', default=service_url)
+    parser.add_argument('--url', help='service url: %(default)s', default="http://gluedig.dnsd.info:443/?mac=")
     parser.add_argument('--port', help='port to run on: %(default)s', default=5002)
     args = parser.parse_args()
+    service_url = args.url
 
     app.run(host='0.0.0.0', debug=args.debug, port=args.port)
