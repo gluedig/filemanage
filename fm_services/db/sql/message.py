@@ -24,7 +24,7 @@ class messageDb(fm_services.db.message.messageDb):
 
         def __init__(self, user_id, hub_id, text):
             self.text = text
-            self.posted = datetime.datetime.now()
+            self.posted = datetime.datetime.utcnow()
             self.user = user_id
             self.hub = hub_id
 

@@ -50,7 +50,7 @@ class userDb(fm_services.db.user.userDb):
         devices = relationship('Device', backref='users')
 
         def __init__(self, email, image):
-            now = datetime.datetime.now()
+            now = datetime.datetime.utcnow()
             self.created = now
             self.modified = now
             self.seen = now
@@ -114,13 +114,13 @@ class userDb(fm_services.db.user.userDb):
     def login(self, user_id):
         user = self.find_by_id(user_id)
         if user:
-            user.seen = datetime.datetime.now()
+            user.seen = datetime.datetime.utcnow()
             self.session.commit()
 
     def logout(self, user_id):
         user = self.find_by_id(user_id)
         if user:
-            user.seen = datetime.datetime.now()
+            user.seen = datetime.datetime.utcnow()
             self.session.commit()
 
     def get_contacts(self, user_id):

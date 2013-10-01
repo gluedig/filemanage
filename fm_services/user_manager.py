@@ -118,7 +118,7 @@ class UserManager:
                 modified = True
 
         if modified:
-            user.modified = datetime.datetime.now()
+            user.modified = datetime.datetime.utcnow()
         return make_response('OK', 200)
 
     @user_loggedin
