@@ -17,9 +17,12 @@ def xsite_enabled(f):
     def decorated_function(*args, **kwargs):
         resp = f(*args, **kwargs)
         if isinstance(resp, Response):
-            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE'
+            resp.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, HEAD'
             resp.headers['Access-Control-Allow-Origin'] = '*'
             resp.headers['Access-Control-Allow-Headers'] = 'X-Requested-With, Content-Type'
+            resp.headers['Access-Control-Expose-Headers'] = 'Set-Cookie'
+            resp.headers['Access-Control-Allow-Credentials'] = 'true'
+            resp.headers['P3P'] = 'CP="IDC DSP COR CURa ADMa OUR IND PHY ONL COM STA"'
         return resp
     return decorated_function
 
