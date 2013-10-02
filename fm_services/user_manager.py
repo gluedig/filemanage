@@ -112,13 +112,14 @@ class UserManager:
             return make_response('Cannot parse user data JSON', 400)
 
         modified = False
-        for key, value in new_data[0].iteritems():
+        for key, value in new_data.iteritems():
             if hasattr(user, key):
                 setattr(user, key, value)
                 modified = True
 
         if modified:
             user.modified = datetime.datetime.utcnow()
+            self.db.session.commit()
         return make_response('OK', 200)
 
     @user_loggedin
