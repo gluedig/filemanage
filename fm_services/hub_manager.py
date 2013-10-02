@@ -109,12 +109,7 @@ class HubManager:
     @user_loggedin
     def associate(self, hub_id, session, request):
         user_id = int(session.get_user_id())
-        if 'only' in request.args:
-            only = True
-        else:
-            only = False
-        
-        if self.db.associate(hub_id, user_id, only=only):
+        if self.db.associate(hub_id, user_id, only=True):
             self.app.signals['hub-associate'].send(self, user_id=user_id, hub_id=hub_id)
             return make_response('OK', 200)
         else:
