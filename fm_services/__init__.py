@@ -40,6 +40,10 @@ import bbs
 #import events_forwarder
 
 @app.route('/')
+def index():
+    return redirect('/index.html')
+
+@app.route('/index')
 @xsite_enabled
 def root():
     mac = None
