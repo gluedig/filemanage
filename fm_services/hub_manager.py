@@ -54,6 +54,16 @@ class HubManager:
         mon_id = int(mon_id)
         if mon_id not in self.hub_monitor_map:
             return
+        hub = self.db.get_hub(self.hub_monitor_map[mon_id])
+        device = self.user_db.find_device_by_mac(mac)
+        if hub and device and device.user_id:
+            user_id = device.user_id
+            app.logger.debug(str.format("User: {0} (MAC: <{1}>) changed proximity to Hub: {2} (Monitor: {3})", user_id, mac, hub.hub_id, mon_id))
+            if not self.db.associated(hub.hub_id, user_id):
+                if self.db.associate(hub.hub_id, user_id):
+                    self.app.signals['hub-associate'].send(self, user_id=user_id, hub_id=hub.hub_id)
+                else:
+                    app.logger.error('Cannot associate user %d to hub %d', user_id, hub.hub_id)
 
     def create(self, request):
         if 'description' not in request.form:

@@ -25,16 +25,18 @@ class MonitorManager:
     def user_assoc(self, sender, **args):
         if 'mac' in args:
             mac = args['mac']
-            if mac in self.watched_macs:
-                return
-            app.logger.debug("New watched MAC: <%s>", mac)
-            self.watched_macs.add(mac)
-            mon_id = self.find_client(None, mac)
-            if mon_id and mon_id in self.mons_by_id:
-                rssi = 0
-                if mac in self.last_rssi:
-                    rssi = self.last_rssi[mac]
-                self._proximity_enter(self.mons_by_id[mon_id], mac, rssi)
+            if mac not in self.watched_macs:
+                app.logger.debug("New watched MAC: <%s>", mac)
+                self.watched_macs.add(mac)
+
+            mon_ids = self.find_client(None, mac)
+            if mon_ids:
+                for mon in mon_ids:
+                    if mon in self.mons_by_id:
+                        rssi = 0
+                        if mac in self.last_rssi:
+                            rssi = self.last_rssi[mac]
+                        self._proximity_enter(self.mons_by_id[mon], mac, rssi)
     
     #web methods 
     def register(self, ip, mon_id):
@@ -42,7 +44,7 @@ class MonitorManager:
         new_mon.ip = ip
         new_mon.id = mon_id
         if self.is_registered(mon_id):
-            return ('Monitor: '+mon_id+' already registered', 200)
+            return (str.format('Monitor: {0} already registered', mon_id), 200)
     
         self.mons_by_id[mon_id] = new_mon
         if ip not in self.mons_by_ip:
@@ -53,7 +55,7 @@ class MonitorManager:
     
     def unregister(self, mon_id):
         if not self.is_registered(mon_id):
-            return ('Monitor: '+mon_id+' not registered', 200)
+            return (str.format('Monitor: {0} not registered', mon_id), 200)
     
         mon = self.mons_by_id.pop(mon_id)
         mons =  self.mons_by_ip[mon.ip]
@@ -76,7 +78,7 @@ class MonitorManager:
             monitor.clients.add(mac)
         self.last_rssi[mac] = rssi
         if mac in self.watched_macs:
-            app.logger.debug("MAC <%s> entered proximity of monitor %s", mac, monitor.id)
+            app.logger.debug(str.format("MAC <{0}> entered proximity of monitor {1}", mac, monitor.id))
             self.app.signals['proximity-entered'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def _proximity_leave(self, monitor, mac, rssi):
@@ -84,18 +86,18 @@ class MonitorManager:
             monitor.clients.remove(mac)
         self.last_rssi[mac] = rssi
         if mac in self.watched_macs:
-            app.logger.debug("MAC <%s> left proximity of monitor %s", mac, monitor.id)
+            app.logger.debug(str.format("MAC <{0}> left proximity of monitor {1}", mac, monitor.id))
             self.app.signals['proximity-left'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def _proximity_change(self, monitor, mac, rssi):
         self.last_rssi[mac] = rssi
         if mac in self.watched_macs:
-            app.logger.debug("MAC <%s> changed proximity to monitor %s", mac, monitor.id)
+            app.logger.debug(str.format("MAC <{0}> changed proximity to monitor {1}", mac, monitor.id))
             self.app.signals['proximity-change'].send(self, mon_id=monitor.id, mac=mac, rssi=rssi)
 
     def client_event(self, mon_id, request):
         if not self.is_registered(mon_id):
-            return ('Monitor: '+mon_id+' not registered\n', 404)
+            self.register(request.remote_addr, mon_id)
 
         monitor = self.mons_by_id[mon_id]
         #self.app.logger.debug(request.get_data(as_text=True))
@@ -112,25 +114,26 @@ class MonitorManager:
         if event_type == 0:
             self._proximity_enter(monitor, mac, rssi)
             msg = str.format("Monitor {0} registered new MAC <{1}>", mon_id, mac)
-            app.logger.debug(msg)
+            #app.logger.debug(msg)
             return msg
         #client remove
         elif event_type == 1:
             self._proximity_leave(monitor, mac, rssi)
             msg = str.format("Monitor {0} unregistered MAC <{1}>", mon_id, mac)
-            app.logger.debug(msg)
+            #app.logger.debug(msg)
             return msg
         #change
         elif event_type == 2:
             if mac in monitor.clients:
                 if rssi != msg_json['prev_rssi']:
-                    self.app.logger.debug(str.format("Monitor {0} MAC <{1}> prev rssi {2} new rssi {3}", mon_id, mac, msg_json['prev_rssi'], rssi ))
+                    msg = str.format("Monitor {0} MAC <{1}> prev rssi {2} new rssi {3}", mon_id, mac, msg_json['prev_rssi'], rssi)
+                    #app.logger.debug(msg)
                     self._proximity_change(monitor, mac, rssi)
-                    return str.format("Monitor {0} client {1} RSSI changed\n", mon_id, mac)
+                    return msg
             else:
                 self._proximity_enter(monitor, mac, rssi)
                 msg = str.format("Monitor {0} registered new MAC <{1}>", mon_id, mac)
-                app.logger.debug(msg)
+                #app.logger.debug(msg)
                 return msg
 #        else:
 #            error = str.format("Unknown event: {0}", msg_json['event_type'])
@@ -176,11 +179,11 @@ def mon_register_route(mon_id):
     ip = request.remote_addr
     return this_service.register(ip, mon_id)
 
-@app.route('/monitor/unregister/<mon_id>')
+@app.route('/monitor/unregister/<int:mon_id>')
 def mon_unregister_route(mon_id):
     return this_service.unregister(mon_id)
 
-@app.route('/monitor/event/<mon_id>', methods=["POST"])
+@app.route('/monitor/event/<int:mon_id>', methods=["POST"])
 def mon_event_route(mon_id):
     return this_service.client_event(mon_id, request)
 

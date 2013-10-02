@@ -47,4 +47,7 @@ class hubDb():
     def get_users(self, hub_id):
         return NotImplemented
     
+    @abstractmethod
+    def associated(self, hub_id, user_id):
+        return NotImplemented
     

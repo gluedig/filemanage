@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, session, make_response, redir
 app = Flask(__name__, static_url_path='')
 app.config.from_object('fm_services.default_settings')
 
+
 from session_interface import SensusSessionInterface
 app.session_interface = SensusSessionInterface()
 
@@ -29,6 +30,7 @@ import db.sql.hub
 import db.sql.message
 
 from db.sql import Base
+#Base.metadata.tables['devices'].drop()
 Base.metadata.create_all()
 
 import monitor_manager

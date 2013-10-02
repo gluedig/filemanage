@@ -44,7 +44,8 @@ class HubEvents(SockJSConnection):
         
     def on_close(self):
         app_log.debug("HubEvents ticker close hub: "+self.hub)
-        self.stream.stop_on_recv()
+        if hasattr(self, 'stream'):
+            self.stream.stop_on_recv()
 
 class HubEventsGetHandler(web.RequestHandler):
     
@@ -84,7 +85,8 @@ class UserEvents(SockJSConnection):
 
     def on_close(self):
         app_log.debug("UserEvents ticker close uid: "+self.user_id)
-        self.stream.stop_on_recv()
+        if hasattr(self, 'stream'):
+            self.stream.stop_on_recv()
 
 class UserEventsGetHandler(web.RequestHandler):
     def __init__(self, app, req, **kwargs):

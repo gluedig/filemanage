@@ -92,6 +92,18 @@ class hubDb(fm_services.db.hub.hubDb):
         
         return None
 
+    def associated(self, hub_id, user_id):
+        try:
+            hubs = self.session.query(associations_table)\
+                .filter_by(hub=hub_id)\
+                .filter_by(user=user_id)\
+                .all()
+            if hubs and len(hubs) != 0:
+                return True
+        except NoResultFound:
+            return False
+        return False
+
     def __init__(self):
         self.session = sql_session
     
