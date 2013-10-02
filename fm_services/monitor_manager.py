@@ -42,18 +42,18 @@ class MonitorManager:
         new_mon.ip = ip
         new_mon.id = mon_id
         if self.is_registered(mon_id):
-            return ('Monitor: '+mon_id+' already registered', 404)
+            return ('Monitor: '+mon_id+' already registered', 200)
     
         self.mons_by_id[mon_id] = new_mon
         if ip not in self.mons_by_ip:
             self.mons_by_ip[ip] = []
         self.mons_by_ip[ip].append(new_mon)
         
-        return "OK\n"
+        return "OK"
     
     def unregister(self, mon_id):
         if not self.is_registered(mon_id):
-            return ('Monitor: '+mon_id+' not registered', 404)
+            return ('Monitor: '+mon_id+' not registered', 200)
     
         mon = self.mons_by_id.pop(mon_id)
         mons =  self.mons_by_ip[mon.ip]
